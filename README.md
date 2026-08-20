@@ -62,8 +62,14 @@ LLM 调用走 SpaceXAI（xAI API：`XAI_API_KEY`，`https://api.x.ai/v1`）。�
 
 当前 `provsci` 命令只打印流水线状态，模块还是空实现。下一步是冻结 schema、写白名单工具，再人工做第一批 Gold 样本。
 
-## 文档
+## 文档和提示词
 
-- [我想做的科学结果数据智能体](docs/vision.md)
-- [现状与功能设计 v0.1](docs/design-v0.1.md)
-- [TRUST 论文对照调研](docs/trust-survey.md)
+本地相关材料已经收进仓库，清单见 [docs/MATERIALS.md](docs/MATERIALS.md)。
+
+- [我想做的科学结果数据智能体](docs/我想做的科学结果数据智能体.md)
+- [现状与功能设计 v0.1](docs/ProvSci_数据智能体现状与功能设计_v0.1.md)
+- [TRUST 论文对照调研](docs/ProvSci_TRUST论文与结果数据智能体对照调研.md)
+- [公司侧战略规划（金若凡，2026-08-11）](docs/company-plan/ProvSci_Science_Reasoning_and_Data_Agent_Plan.md)
+- [BioClaw / AI4S 竞品调研](docs/bioclaw-survey/)
+- [Codex 会话提示词 2026-08-16](prompts/codex-2026-08-16.md)
+- [BioClaw 评测题与 rubric](prompts/bioclaw-eval-rubric-and-items.md)
