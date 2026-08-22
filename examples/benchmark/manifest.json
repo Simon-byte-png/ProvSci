@@ -1,0 +1,85 @@
+{
+  "name": "provsci-v0.2-multiformat-baseline",
+  "documents": [
+    {
+      "path": "../documents/biophysics_demo.json",
+      "expected": {"candidates": 6, "gold": 6, "silver": 0},
+      "expected_claims": [
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Control", "col": "Max response"},
+        {"kind": "relation", "paragraph_id": "p1", "value": "increased", "subject": "Compound A", "object": "response relative to control"}
+      ]
+    },
+    {
+      "path": "../documents/measurements.csv",
+      "metadata": {"doc_id": "csv:measurements", "license": "CC-BY-4.0", "year": 2024},
+      "expected": {"candidates": 5, "gold": 5, "silver": 0},
+      "expected_claims": [
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Control", "col": "Max response"}
+      ]
+    },
+    {
+      "path": "../documents/relations.html",
+      "metadata": {"doc_id": "html:relations", "license": "CC-BY-4.0", "year": 2024},
+      "expected": {"candidates": 2, "gold": 2, "silver": 0},
+      "expected_claims": [
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "IC50"},
+        {"kind": "relation", "paragraph_id": "p1", "value": "increased", "subject": "Compound A", "object": "response relative to control"}
+      ]
+    },
+    {
+      "path": "../documents/measurements.csv",
+      "metadata": {"doc_id": "csv:unknown-license", "license": "unknown", "year": 2024},
+      "expected": {"candidates": 5, "gold": 0, "silver": 5},
+      "expected_claims": [
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound A", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "IC50"},
+        {"kind": "table", "table_id": "Table 1", "row": "Compound B", "col": "Max response"},
+        {"kind": "table", "table_id": "Table 1", "row": "Control", "col": "Max response"}
+      ]
+    },
+    {
+      "path": "../real/PMC13272437.nxml",
+      "metadata": {
+        "license": "CC-BY-4.0",
+        "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13272437/fullTextXML",
+        "license_source": "PMC OA record / article JATS permissions",
+        "retrieved_at": "2026-08-21"
+      },
+      "expected": {"candidates": 23, "gold": 23, "silver": 0},
+      "expected_claims": [
+        {"kind": "text_number", "paragraph_id": "p17", "value": "0.33", "unit": "U/ml", "metric": "IC50", "entity": "rMETase"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "7.1", "unit": "μM", "metric": "IC50", "entity": "ivermectin"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "25.7", "unit": "μM", "metric": "IC50", "entity": "doxorubicin"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "6.9", "unit": "μM", "metric": "IC50", "entity": "5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "10.4", "unit": "μM", "metric": "IC50", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "17.5", "unit": "nM", "metric": "IC50", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "4.1", "unit": "nM", "metric": "IC50", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.1", "unit": "%", "metric": "cell viability reduction", "entity": "rMETase"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "50.2", "unit": "%", "metric": "cell viability reduction", "entity": "ivermectin"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.3", "unit": "%", "metric": "cell viability reduction", "entity": "doxorubicin"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "48.1", "unit": "%", "metric": "cell viability reduction", "entity": "5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.5", "unit": "%", "metric": "cell viability reduction", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "48.2", "unit": "%", "metric": "cell viability reduction", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "56.4", "unit": "%", "metric": "cell viability reduction", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "7.8", "unit": "%", "metric": "cell viability", "entity": "ivermectin with rMETase"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "28.5", "unit": "%", "metric": "cell viability", "entity": "rMETase combined with 5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "20.8", "unit": "%", "metric": "cell viability", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "21.5", "unit": "%", "metric": "cell viability", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "15.5", "unit": "%", "metric": "cell viability", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "5.6", "unit": "%", "metric": "cell viability", "entity": "doxorubicin"},
+        {"kind": "relation", "paragraph_id": "p19", "value": "reduced", "subject": "Treatment with rMETase and each drug alone at its IC50 for 72 h", "object": "cell viability compared with untreated control cells"},
+        {"kind": "relation", "paragraph_id": "p23", "value": "higher", "subject": "The CI value for ivermectin combined with rMETase", "object": "those for 5-fluorouracil, cisplatinum, gemcitabine and paclitaxel, each combined with rMETase"},
+        {"kind": "relation", "paragraph_id": "p24", "value": "higher", "subject": "Ivermectin or doxorubicin combined with rMETase", "object": "5-fluorouracil, cisplatinum, gemcitabine or paclitaxel combined with rMETase"}
+      ]
+    }
+  ]
+}

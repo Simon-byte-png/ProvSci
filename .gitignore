@@ -1,17 +1,11 @@
-.venv/
 __pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.env
+.coverage
+build/
+dist/
+*.egg-info/
+work/*
+outputs/
+.venv/
 .DS_Store
-
-# 原始论文和大型附件默认不进 Git
-data/raw/**
-!data/raw/.gitkeep
-data/cards/**
-!data/cards/.gitkeep
-*.pdf
-*.zip
