@@ -1,0 +1,25 @@
+{
+  "doc_id": "doi:10.1234/provsci-demo",
+  "title": "A reproducible dose-response example",
+  "year": 2024,
+  "license": "CC-BY-4.0",
+  "local_path": "raw/demo/dose-response.pdf",
+  "metadata": {"subject": "biophysics", "parser_version": "normalized-v0"},
+  "paragraphs": [
+    {"id": "p1", "page": 1, "text": "Compound A increased response relative to control."},
+    {"id": "p2", "page": 2, "text": "The table contains the reported IC50 values."}
+  ],
+  "tables": [
+    {
+      "id": "Table 1",
+      "page": 2,
+      "caption": "Measured IC50 values",
+      "columns": ["Sample", "IC50", "Max response"],
+      "rows": [
+        {"Sample": "Compound A", "IC50": "12.5 uM", "Max response": "82.0 %"},
+        {"Sample": "Compound B", "IC50": "250 nM", "Max response": "65 %"},
+        {"Sample": "Control", "IC50": "not detected", "Max response": "4.0 %"}
+      ]
+    }
+  ]
+}

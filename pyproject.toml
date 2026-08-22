@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "provsci"
+version = "0.3.0"
+description = "Auditable scientific data mining and provenance agent"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+provsci = "provsci.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
