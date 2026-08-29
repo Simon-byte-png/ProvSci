@@ -1,0 +1,21 @@
+{
+  "name": "provsci-v0.3-real-pmc-smoke",
+  "documents": [
+    {
+      "path": "../real/PMC13272437.nxml",
+      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13272437/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+    },
+    {
+      "path": "../real/PMC8415024.nxml",
+      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+    },
+    {
+      "path": "../real/PMC9857184.nxml",
+      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9857184/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+    },
+    {
+      "path": "../real/PMC2010468.nxml",
+      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC2010468/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+    }
+  ]
+}
