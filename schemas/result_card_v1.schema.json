@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://provsci.example/schemas/result-card-v1.schema.json",
+  "title": "ProvSci ResultCard v1",
+  "description": "Stable domain-facing result record embedded in an auditable ProvSci sample.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "domain",
+    "result_type",
+    "entity",
+    "metric",
+    "value",
+    "unit",
+    "display",
+    "condition",
+    "raw_value",
+    "normalized_value"
+  ],
+  "properties": {
+    "schema_version": {"const": "result_card.v1"},
+    "domain": {"type": "string", "minLength": 1},
+    "result_type": {"type": "string", "minLength": 1},
+    "entity": {"type": ["string", "null"]},
+    "metric": {"type": ["string", "null"]},
+    "value": {},
+    "unit": {"type": "string"},
+    "display": {"type": "string"},
+    "condition": {
+      "type": "object",
+      "required": ["text", "source", "status"],
+      "properties": {
+        "text": {"type": ["string", "null"]},
+        "source": {"type": "string"},
+        "status": {"enum": ["explicit", "not_extracted", "inferred", "conflict"]}
+      },
+      "additionalProperties": true
+    },
+    "uncertainty": {},
+    "raw_value": {"type": ["string", "number", "null"]},
+    "normalized_value": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {},
+        "unit": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

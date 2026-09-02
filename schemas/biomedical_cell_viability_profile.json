@@ -1,0 +1,57 @@
+{
+  "profile_id": "biomedical_cell_viability_v1",
+  "profile_version": "1.0.0",
+  "label": "体外癌细胞药物敏感性与细胞活性结果",
+  "scope": "公开文献中体外癌细胞实验的 IC50、细胞活性/活力、凋亡比例和剂量/时间条件。",
+  "exclusions": [
+    "钙钛矿、分子材料和公司生产设备数据",
+    "无法确认来源许可的全文",
+    "只有图像估读、但没有可定位原文或图注的结果"
+  ],
+  "result_card_schema": "schemas/result_card_v1.schema.json",
+  "required_result_fields": [
+    "entity",
+    "metric",
+    "value",
+    "unit",
+    "condition",
+    "raw_value",
+    "normalized_value"
+  ],
+  "supported_result_types": [
+    "ic50",
+    "cell_viability",
+    "cell_viability_reduction",
+    "apoptosis_proportion",
+    "comparison_relation"
+  ],
+  "condition_fields": [
+    "cell_line",
+    "compound_or_treatment",
+    "dose_or_concentration",
+    "exposure_time",
+    "assay",
+    "control_group",
+    "replicate_or_error_definition"
+  ],
+  "unit_policy": {
+    "concentration": ["M", "mM", "μM", "uM", "nM", "pM", "mg/mL", "μg/mL", "ug/mL", "ng/mL", "U/mL", "U/ml"],
+    "percentage": ["%"],
+    "time": ["s", "min", "h"],
+    "temperature": ["°C", "C", "K"]
+  },
+  "gold_gate": [
+    "known_license",
+    "evidence_locator_resolves",
+    "result_card_has_entity_metric_value_unit",
+    "condition_is_explicit_or_marked_not_reported",
+    "acquisition_path_replays",
+    "verification_status_pass",
+    "no_duplicate_sample_id"
+  ],
+  "annotation_guidance": {
+    "include": "只标注结果段、结果表或结果图注中与细胞系/处理/指标绑定的测量值；保留均值、误差及原文显示格式。",
+    "exclude": "方法段的配液/培养条件和结果段中仅作为剂量、时间或温度出现的条件值。",
+    "uncertain": "实体、指标、条件、统计口径或许可不能确认时进入 Silver/Human Review，并记录 failure_mode。"
+  }
+}

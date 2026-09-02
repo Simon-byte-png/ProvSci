@@ -19,15 +19,20 @@ Document package -> Mine candidates -> Build task/evidence/path -> Verify -> Cur
 
 当前是 v0.3 工程原型，优先打通多格式输入、结果数据挖掘、可执行 provenance path、确定性验证、语义质量门禁和文献级 benchmark 闭环。
 
-- 已实现：规范化文档包、JSON/CSV/TSV/HTML/Markdown/纯文本/XLSX/JATS 基线适配器、系统 `pdftotext` PDF 基线、section-aware 结果路由、表格数值/文本测量/关系三元组候选挖掘、均值±误差解析、任务与证据生成、白名单 acquisition path、单位解析与换算、确定性验证、语义质量门禁、Gold/Silver 分层、批处理、文献级切分、严格 benchmark、JSONL 输出、CLI、端到端测试。
-- 当前输入：JSON/CSV/TSV/HTML/Markdown/纯文本/XLSX/JATS；复杂 PDF 版面建议接入 Docling/GROBID/TATR/Nougat 适配器。
-- 默认垂直切片：带单位的表格数值结果，例如浓度、IC50、产率、温度和实验测量值。
+- 已实现：规范化文档包、JSON/CSV/TSV/HTML/Markdown/纯文本/XLSX/JATS 基线适配器、系统 `pdftotext` PDF 基线、section-aware 结果路由、表格数值/文本测量/关系三元组候选挖掘、均值±误差解析、任务与证据生成、白名单 acquisition path、单位解析与换算、确定性验证、语义质量门禁、Gold/Silver 分层、结果级重复/冲突标记、批处理、文献级切分、严格 benchmark、JSONL 输出、CLI、本地单用户审核工作台、端到端测试。
+- 当前输入：JSON/CSV/TSV/HTML/Markdown/纯文本/XLSX/JATS；复杂 PDF 版面可通过 `DocumentAdapter` 协议接入 Docling/GROBID/TATR/Nougat，核心流水线不绑定某个重型解析器。
+- 默认场景：`scientific_quantitative_result_v1`，即公开科学文献、实验报告和结构化实验资料中的带单位定量结果（浓度、IC50、产率、温度、时间、响应率和一般实验测量值），以及与结果绑定的实体、指标和局部条件。领域专用 profile（例如 `biomedical_cell_viability_v1`）只作为可选细化层。
 - 暂不宣称：通用科学家 agent 或 Science Foundation Model。当前准确定位是可审计的数据智能体原型。
 
 ## 公开汇报与完整调研
 
 - **[领域调研与结果数据智能体功能蓝图](docs/领域调研与结果数据智能体功能蓝图.md)**：面向公开仓库的完整长文，系统梳理文档解析、文本/表格/图表抽取、知识图谱、LLM/VLM、多智能体、provenance 与人机协同现状，并详细列出 ProvSci 目标功能、架构、评价体系和路线图。
+- **[ProvSci 下一阶段要求](docs/ProvSci_下一阶段要求.md)**：冻结当前工作边界、P0/P1/P2 任务、Gold 最低要求和完成判据。
+- **[ResultCard v1 schema](schemas/result_card_v1.schema.json)**、[通用定量结果 profile](schemas/scientific_quantitative_result_profile.json) 与 [生物医学细胞活性示例 profile](schemas/biomedical_cell_viability_profile.json)：默认场景的结构化字段和 Gold 门禁，以及一个可选领域细化示例。
+- [P0 结果表](docs/p0-results-v1.md) 与 [P0 典型失败案例](docs/p0-failure-cases.md)：真实文献复现结果、失败分流和限制。
+- [可重复综述矩阵与图](docs/review-figures.md)：21 条代表性工作的结构化比较表，以及由矩阵重绘的时间线、能力矩阵、证据链和限制模式图。
 - [下周交流汇报稿](docs/下周交流汇报稿.md)：15 分钟汇报、5 分钟演示和常见追问的口头表达版本。
+- [老师演示方案 v1](docs/老师演示方案-v1.md)：8–10 分钟真实论文演示脚本、精确命令、预期输出、追问回答和备份方案。
 
 ## 本阶段研究任务与预期交付
 
@@ -57,7 +62,7 @@ Document package -> Mine candidates -> Build task/evidence/path -> Verify -> Cur
 | 领域信息抽取/知识图谱 | 实体、关系、事件、实验条件和属性标准化 | 便于查询、聚合、关联和跨文献分析 | ontology/schema 设计重，抽取错误会被图结构放大 | 先做结果级 schema 和证据图，再按领域接本体 |
 | LLM/VLM 结构化抽取 | 按 schema 抽取文本、表格与图中的复杂字段 | 少样本适配快，能处理长尾表达和多模态输入 | 幻觉、数值漂移、输出不稳定、成本和复现性问题 | 模型负责候选生成与语义判断，不独占最终裁决 |
 | RAG/深度研究智能体 | 检索、阅读、规划、综合与引用 | 能覆盖较宽问题并形成研究报告 | 通常优化“回答质量”，未必输出可复算的数据样本 | 把目标从回答改为可验证的数据产品和审计记录 |
-| 人机协同数据整理 | 主动学习、低置信复核、修订历史 | 可把专家精力集中在高价值难例 | 审核界面和反馈闭环需要额外工程 | Silver/Human Review 是正式产物，不把失败静默丢弃 |
+| 人机协同数据整理 | 主动学习、低置信复核、修订历史 | 可把专家精力集中在高价值难例 | 多人协作审核界面和完整反馈闭环仍需额外工程 | 已提供本地单用户工作台；Silver/Human Review 是正式产物，不把失败静默丢弃 |
 
 ### 2. 已出现的关键能力
 
@@ -230,7 +235,7 @@ ProvSci 不尝试在所有 PDF 解析指标上取代专用工具，也不把目�
 2. 把表格数值抽取的表头、脚注、条件绑定和单位处理做成强基线。
 3. 让每条 Gold 样本都能从证据定位独立 replay，并报告 Path Reproducibility。
 4. 完善 human review 输出和失败案例分析。
-5. 建立 `literature_matrix` 与脚本化综述图生成流程。
+5. 建立 `literature_matrix` 与脚本化综述图生成流程（已提供 21 条记录和四张可重绘 SVG；后续继续做字段复核和领域扩展）。
 
 ### P1：补齐科学 PDF 与多模态
 
@@ -239,12 +244,11 @@ ProvSci 不尝试在所有 PDF 解析指标上取代专用工具，也不把目�
 3. 对正文、表格、图和补充材料进行结果级对齐与冲突检测。
 4. 选一个具体学科建立领域 schema、术语表和端到端 benchmark。
 
-### P2：形成可用的数据生产系统
+### P2：形成论文或产品判断依据
 
-1. 增加检索、增量运行、复核界面、数据集版本和 API。
-2. 建立成本—质量路由，小模型/规则处理简单样本，大模型处理难例。
-3. 支持多人审核、一致性统计、主动学习和回归评测。
-4. 通过持续运行验证吞吐、可靠性、可维护性和许可合规。
+1. 固定测试集，报告抽取准确率/召回率、证据定位、单位和条件匹配、验证通过率、Gold 比例、成本、耗时和失败类型。
+2. 和规则基线、基础 LLM 或现有专用工具做对比，并对证据、验证和质量门禁做消融。
+3. 根据数据规模、质量和实验结果，决定走方法论文、数据库论文，还是先作为专用数据产品继续迭代。
 
 ## 研究评价框架
 
@@ -402,21 +406,28 @@ ProvSci 的长期目标是通用的科研结果数据智能体。下面的功能
 ```text
 src/provsci/
   adapters.py     # JSON/CSV/HTML/text/XLSX/JATS/PDF 基线输入适配器
+  layout_adapters.py # 可选 Docling 布局感知适配器（懒加载，不强制依赖）
   models.py       # 文档、候选、样本、path 和验证结果模型
   classify.py     # 结果类型、模态、难度和处理操作标注
-  miner.py        # 表格数值候选挖掘与任务/证据/path 生成
+  miner.py        # 表格、文本、补充材料和结构化图表候选挖掘
   path.py         # 白名单 acquisition path 执行器
   verifier.py     # 确定性结果验证
   pipeline.py     # ingest -> mine -> verify -> curate
   batch.py        # 多文献处理、文献级 split、重复检测
   evaluate.py     # benchmark manifest 和指标输出
   agent.py        # 可直接调用的 run/ask agent facade
+  ablation.py     # 固定 manifest 的模块消融评测（仅诊断）
+  adversarial.py  # 受控污染样本与 verifier 拒绝评测（仅诊断）
+  review.py       # append-only 人工复核决策与结果物化
+  review_ui.py    # 静态审核快照与 loopback 本地工作台
+  supplements.py  # 外部补充材料解析、hash 记录与文章包附着
   cli.py          # 命令行入口
 ```
 
 v0 的支持动作：
 
 - `extract_table_cell`
+- `extract_figure_point`
 - `read_text_span`
 - `parse_number_unit`
 - `extract_number_unit`
@@ -426,7 +437,7 @@ v0 的支持动作：
 
 任何不在白名单中的动作都会失败，不能通过 verifier。
 
-每个样本还会显式记录 `task.classification` 和 `processing`：当前规则分类器区分测量值与比较关系，记录证据模态、任务难度、执行过的处理操作，并保留原始值、标准化值和可选的 uncertainty。文本结果会优先绑定 metric/entity；关系结果会绑定 subject/predicate/object。缺少这些语义字段的样本不能进入 Gold，会进入 `human_review.jsonl`。
+每个样本还会显式记录 `task.classification`、稳定的 `result_card.v1` 和 `processing`：当前规则分类器区分测量值与比较关系，记录证据模态、任务难度、执行过的处理操作，并保留 raw value、解析值、标准化值和可选的 uncertainty。ResultCard 统一承载 domain、entity、metric、value、unit、condition、原始显示值与标准化值；文本结果会优先绑定 metric/entity，关系结果会绑定 subject/predicate/object。缺少这些语义字段的样本不能进入 Gold，会进入 `human_review.jsonl`。
 
 ## 快速开始
 
@@ -434,7 +445,7 @@ v0 的支持动作：
 
 ```bash
 PYTHONPATH=src python3 -m provsci.cli run \
-  --input examples/documents/biophysics_demo.json \
+  --input examples/documents/generic_results_demo.json \
   --output work/demo-run
 ```
 
@@ -444,7 +455,16 @@ PYTHONPATH=src python3 -m provsci.cli run \
 - `work/demo-run/gold.jsonl`：验证通过且许可可用的 Gold 样本
 - `work/demo-run/silver.jsonl`：未满足 Gold 门禁的样本
 - `work/demo-run/human_review.jsonl`：需要人工处理的语义不完整、重复或安全风险样本
+- `work/demo-run/review_queue.jsonl`：按风险优先级排序的人工审核队列（由 human_review 派生）
+- `work/demo-run/review_decisions.jsonl`：追加式人工复核决策日志，保留 before/after 摘要
+- `work/demo-run/rejected.jsonl`：人工明确拒绝、但仍保留 provenance 的样本
+- `work/demo-run/retry.json`：重试运行与原始 run 的 lineage、输入 hash 和策略
+- `work/demo-run/result_cards.jsonl`：包含结果卡、证据、路径、验证和质量级别的可审计导出
+- `work/demo-run/result_cards.csv`：便于表格分析的 ResultCard 平面导出
+- `work/demo-run/data_card.json`：数据集规模、领域/指标/模态、许可、失败模式和质量分层摘要
 - `work/demo-run/summary.json`：样本数、通过率和失败模式
+
+每次运行还会在 `summary.json` 中记录 source URL/许可证、获取方式、解析器、内容 hash、文件大小和 source version；每条样本把同一 source record 投影到 `source`，便于复核输入是否被替换。
 
 运行测试：
 
@@ -470,10 +490,158 @@ PYTHONPATH=src python3 -m provsci.cli ask \
 
 `ask` 只返回 `verification.status=pass` 的样本，并保留 evidence、acquisition path 和 verification trace；当前是透明词法检索基线，后续可替换为检索/LLM 排序器，但不能绕过 verifier。
 
+人工队列可以通过 CLI 追加决策。`accept` 只解除人工语义门禁，仍受 verifier 和许可证门禁约束；`modify` 会按 dotted path 修改字段并重新 replay；`reject` 会把样本移到 `rejected.jsonl`，不会从审计记录中删除：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli review \
+  --run work/demo-run \
+  --sample-id provscicandidate-... \
+  --decision accept \
+  --reviewer alice \
+  --comment "证据和条件已人工确认"
+```
+
+审核前可先生成确定性排序队列；它只读 `human_review.jsonl`，不会覆盖样本或决策日志：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli review-queue --run work/demo-run
+```
+
+也可以生成本地单用户审核工作台。`review-ui` 写出不依赖服务器的静态 HTML 快照；`review-serve` 在 `127.0.0.1` 提供交互式页面和 POST 决策接口。工作台只暴露队列、证据、ResultCard、acquisition path 与验证信息，不把运行目录作为通用文件服务器；提交决策仍复用 `record_review_decision`、verifier 和许可证门禁：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli review-ui \
+  --run work/demo-run \
+  --output work/demo-run/review_workbench.html
+
+PYTHONPATH=src python3 -m provsci.cli review-serve \
+  --run work/demo-run \
+  --host 127.0.0.1 \
+  --port 8765
+```
+
+多人协作、批量复核、权限管理和持久化数据库不在这个本地工作台范围内，仍属于后续扩展。
+
+修改字段的例子：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli review \
+  --run work/demo-run \
+  --sample-id provscicandidate-... \
+  --decision modify \
+  --reviewer alice \
+  --changes-json '{"task.answer.value": 12.5, "task.answer.unit": "uM"}'
+```
+
+对许可清晰的 Europe PMC 开放全文，可以先用 CLI 获取 JATS 并把返回的元数据写入 manifest：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli fetch-pmc \
+  --pmc-id PMC13272437 \
+  --output work/sources/PMC13272437.nxml
+```
+
+获取器只接受 `PMC<数字>`，要求响应同时包含 article 和 license 节点，并返回 source URL、获取日期、版本和获取方式；下载文件不会自动进入 Gold，仍需经过 manifest、verifier 和许可证门禁。
+
+对于 DOI 解析地址、机构仓库或其他 HTTP(S) 全文，也可以使用通用获取器。它会跟随重定向，限制响应大小，记录最终 URL、下载日期、内容 hash 和 `Content-Type`；如果响应是 JATS，还会自动回填 doc_id、标题、年份和许可证。没有明确许可证的来源仍保持 `license_status=unknown`，不能进入 Gold：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli fetch-url \
+  --url https://doi.org/10.1234/example \
+  --output work/sources/example.nxml \
+  --max-bytes 104857600
+```
+
+下载后的补充材料可以继续解析并附着到一个新的规范化文章包。该步骤会保留文章 hash、附件 hash、解析器、表格/图和文本内容；不会覆盖原文章或附件：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli attach-supplement \
+  --article work/sources/PMC1.nxml \
+  --supplement work/sources/PMC1-supplement.csv \
+  --supplement-id PMC1-sup1 \
+  --href media/PMC1-supplement.csv \
+  --output work/sources/PMC1-with-supplement.json
+```
+
+生成的 JSON 文档包可直接交给 `run`/`batch`；补充材料中的段落和表格会进入 `supplement` evidence 通道，并继续经过同一套 path replay 与 Gold 门禁。
+
+也可以先检索候选文献，再人工确认开放许可后下载：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli search-pmc \
+  --query 'colorectal cancer ivermectin cell viability' \
+  --limit 10
+```
+
+JATS 中的外部补充材料可以单独获取；获取器只接受 HTTP(S)、限制文件大小，并返回附件 hash 和 resolved URL：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli fetch-supplement \
+  --article-url https://example.org/articles/PMC1/fullTextXML \
+  --href media/supplement.pdf \
+  --output work/sources/PMC1-supplement.pdf
+```
+
+失败运行可以在新目录中按显式策略或确定性 fallback 重跑，原运行不会被覆盖：
+
+```bash
+PYTHONPATH=src python3 -m provsci.cli retry \
+  --run work/first-run \
+  --output work/retry-run
+```
+
+默认 fallback 为 `table_only → result_focused → multimodal`（`full` 也转到 `multimodal`）；重试摘要会记录 `retry_of`、前次摘要 hash 和实际策略。
+
 运行 benchmark 快捷脚本：
 
 ```bash
 ./scripts/run_benchmark.sh
+```
+
+该快捷脚本默认使用当前通用 `scientific_quantitative_result_v1` 的 P0 manifest；如需复跑旧的多格式 fixture，可显式传入第二个参数。
+
+运行当前 P0 的完整可复现闭环（demo、人工 Gold benchmark、真实文献 smoke）：
+
+```bash
+./scripts/run_p0.sh work/p0-final
+```
+
+准备一次面向老师的完整演示包（P0 闭环、真实论文查询、人工复核工作台和精简预览）：
+
+```bash
+./scripts/run_teacher_demo.sh work/teacher-demo-v2
+```
+
+演示脚本会在 `work/teacher-demo-v2/` 写出 `teacher_dashboard.html` 可视化驾驶舱，并在 `work/teacher-demo-v2/p0/real-smoke/` 写出 `query_sw480_ic50.json`、`query_sw480_ic50_preview.json` 和 `review_workbench.html`；逐分钟讲稿与现场验收清单见 [老师演示方案 v1](docs/老师演示方案-v1.md)。驾驶舱以真实论文 TABLE 1 的 IC50 时间曲线为中心，点选 12/24/36 h 后会同步更新 ResultCard、evidence locator、acquisition path 和 verifier trace。
+
+启动产品工作台（上传文件、运行本地 pipeline、查看结构化结果和证据链）：
+
+```bash
+PYTHONPATH=src python3 scripts/run_product_app.py 127.0.0.1 4173
+```
+
+浏览器打开 `http://127.0.0.1:4173/product_workspace.html`。产品前端位于 `web/product_workspace.html`，上传接口为 `POST /api/analyze`；`work/` 仅保存本地产物，不纳入版本库。
+
+运行 P2 固定集和模块消融（`without_*` 变体只用于诊断，不能生成生产 Gold）：
+
+```bash
+./scripts/run_p2.sh work/p2-evaluation
+```
+
+详细解释见 [P2 模块消融报告](docs/p2-ablation-v1.md)。
+
+固定集之外，还可以运行独立的对抗污染评测；它不会修改原文或生产输出，而是复制干净候选并分别篡改答案、证据和 acquisition path，再重新执行 verifier：
+
+```bash
+./scripts/run_adversarial.sh work/adversarial-evaluation
+```
+
+结果写入 `adversarial_summary.json` 和 `adversarial.jsonl`，用于报告 verifier 对 `answer_mismatch`、`evidence_mismatch`、缺失证据、缺失路径和非法 path action 的拒绝率。
+
+P0 人工核验 manifest 为 `examples/benchmark/p0-gold-manifest.json`，默认运行 profile 为 `scientific_quantitative_result_v1`；其中保留生物医学论文作为真实开放文献样例，而不把产品范围限制在该领域。也可以单独指定 manifest：
+
+```bash
+./scripts/run_benchmark.sh work/p0-benchmark examples/benchmark/p0-gold-manifest.json
 ```
 
 运行多格式 benchmark：
@@ -484,10 +652,10 @@ PYTHONPATH=src python3 -m provsci.cli evaluate \
   --output work/benchmark
 ```
 
-benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/recall、Path Reproducibility、evidence/license coverage、重复 sample ID 和文献级 split 信息。当前包含 4 个本地 fixture 文档和 1 篇 CC-BY PMC/JATS 真实论文、23 条人工整理结果 claim；它仍不是大规模科学 leaderboard，但能对真实开放论文做严格的 value/unit/metric/entity 和 relation triple 对照。
-真实 smoke 脚本会额外读取 4 篇 CC-BY PMC/JATS 论文，当前 result-focused 运行结果为 201 条候选、201 条 Gold、0 条 review、Path Reproducibility 1.0；该 smoke 主要验证运行稳定性和审计不变量，严格语义分数仍以带人工 claim 的 manifest 为准。
+benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/recall、Path Reproducibility、evidence/license/condition coverage、重复/冲突统计、重复 sample ID、文献级 split、运行耗时、吞吐和确定性成本基线。P0 manifest 包含 2 篇真实 CC-BY PMC/JATS 论文、52 条人工核验 claim，其中 46 条进入 Gold、6 条关系候选保留 Human Review；它仍不是大规模科学 leaderboard，但能对真实开放论文做严格的 value/unit/metric/entity 和 relation triple 对照。
+真实 smoke 脚本会额外读取 4 篇 CC-BY PMC/JATS 论文，当前 result-focused 运行结果为 192 条候选、186 条 Gold、6 条 Human Review、Path Reproducibility 1.0、0 个跨证据冲突组；该 smoke 主要验证运行稳定性和审计不变量，严格语义分数以带人工 claim 的 P0 manifest 为准。冲突检测只比较不同表格行/段落/图/补充材料上下文，避免把同一段中的剂量时间序列或同一行的均值/误差列误报为矛盾。
 
-当前策略：`table_only` 是窄表格基线，`full` 是高召回但可能有噪声的对照，`result_focused` 是默认策略，会利用 JATS section 路由、条件值过滤和语义质量门禁；`multimodal` 额外读取 JATS figure alt-text，并通过 `figure` evidence 和 `read_figure_alt_text` path 做图文结果扩展。
+当前策略：`table_only` 是窄表格基线，`full` 是高召回但可能有噪声的对照，`result_focused` 是默认策略，会利用 JATS section 路由、条件值过滤和语义质量门禁；`multimodal` 额外读取 JATS figure alt-text，以及输入包中显式提供的 `series`/`points` 曲线数据，并通过 `figure` evidence、`read_figure_alt_text` 或 `extract_figure_point` path 做图文结果扩展。像素级 OCR/VLM 估读仍需后续适配器输出同样的结构化点格式。
 
 ## 输入文档包
 
@@ -517,6 +685,19 @@ benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/reca
 }
 ```
 
+复杂版面解析器只需实现 `supports(source)` 和 `load(source, metadata)`，返回 `DocumentPackage`（或同结构字典），即可注入现有流水线。仓库提供可选的 `DoclingAdapter`；只有显式传入它且本地安装 Docling 时才会调用，未安装会明确抛出 `OptionalParserUnavailable`：
+
+```python
+from provsci.adapters import load_document
+from provsci.layout_adapters import DoclingAdapter
+
+document = load_document(
+    "paper.pdf",
+    {"domain": "scientific_quantitative_result_v1"},
+    adapter=DoclingAdapter(),
+)
+```
+
 完整逻辑样本 schema 见 [`schemas/sample_schema.json`](schemas/sample_schema.json)。schema 中的硬约束是：没有 evidence、没有 acquisition path 或验证状态不是 `pass` 的样本不能进入 Gold；数据切分必须按文献隔离。
 
 ## 样本示例
@@ -535,29 +716,29 @@ benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/reca
   },
   "task": {
     "type": "numeric_qa",
-    "subject": "biophysics",
-    "question": "What is the reported IC50 for Compound A?",
-    "answer": {"value": 12.5, "unit": "uM", "display": "12.5 uM"},
+    "subject": "scientific_quantitative_result_v1",
+    "question": "What yield was reported for Batch A?",
+    "answer": {"value": 82.5, "unit": "%", "display": "82.5 %"},
     "classification": {"result_type": "measurement", "modalities": ["table"], "task_family": "numeric_qa", "difficulty": 0.31, "classifier": "rules_v0.1"}
   },
   "evidence": [{
     "modality": "table",
-    "locator": {"page": 2, "table_id": "Table 1", "row": "Compound A", "col": "IC50"},
-    "span_text": "12.5 uM"
+    "locator": {"page": 2, "table_id": "Table 1", "row": "Batch A", "col": "Yield (%)"},
+    "span_text": "82.5"
   }],
   "acquisition_path": [{
     "step_id": 1,
     "action": "extract_table_cell",
     "tool": "table_parser",
-    "args": {"page": 2, "table_id": "Table 1", "row_key": "Compound A", "col": "IC50"},
-    "output": "12.5 uM",
+    "args": {"page": 2, "table_id": "Table 1", "row_key": "Batch A", "col": "Yield (%)"},
+    "output": "82.5",
     "depends_on": []
   }, {
     "step_id": 2,
     "action": "parse_number_unit",
     "tool": "number_unit_parser",
     "args": {"value_from": 1},
-    "output": {"value": 12.5, "unit": "uM"},
+    "output": {"value": 82.5, "unit": "%"},
     "depends_on": [1]
   }],
   "processing": {"operations": ["table_cell_extraction", "number_unit_parsing"], "raw_value_preserved": true, "normalization": "number_unit_v0.1"},
@@ -575,6 +756,7 @@ benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/reca
 | Evidence Precision | 人审证据确实支持答案的比例 | 抽检 >= 90% |
 | Fabrication Rate | 无证据或证据不支持却入库的比例 | <= 2% |
 | License Coverage | 许可字段完整且可判定的比例 | 100% 进入 Gold |
+| Condition matching | 有人工条件标注的 claim，ResultCard 条件与原文条件一致率 | P0 标注子集 100% |
 | Doc-level split integrity | 同一 doc_id 是否跨 split | 0 泄漏 |
 
 ## 路线图
@@ -590,13 +772,15 @@ benchmark 会输出候选数/Gold 数/Silver 数一致率、claim precision/reca
 ### A1：单垂直域扩展
 
 - [ ] 接入 Docling/GROBID/TATR/Nougat 的可选 PDF 解析路径
-- [ ] 选择物理实验数值或生物医学剂量-效应子域
+- [x] 冻结通用科学带单位定量结果场景（`scientific_quantitative_result_v1`）
+- [ ] 以可插拔 profile 细化生物医学细胞活性、化学反应或其他领域 ontology
 - [ ] 支持文本关系、实验条件和补充材料
 - [ ] 20 -> 200 篇文献，至少 300 条 Gold
 
 ### A2：规模化与人工协同
 
-- [ ] 候选审阅工作台与批量复核
+- [x] 本地单用户候选审阅工作台（静态快照与 loopback 服务）
+- [ ] 批量复核、多人协作与权限管理
 - [ ] 去重、文献级切分和数据质量看板
 - [ ] 失败样本自动重写/重试
 - [ ] 1,000 条以上 Gold，抽检复现率 >= 85%

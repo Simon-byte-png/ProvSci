@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProvSci 科研数据工作台</title>
+<style>
+:root {
+  --navy: #132b3a;
+  --navy-2: #1b3b4b;
+  --ink: #183343;
+  --muted: #687d8b;
+  --line: #d9e4e8;
+  --canvas: #f4f7f8;
+  --surface: #ffffff;
+  --soft: #f8fafb;
+  --teal: #07847d;
+  --teal-soft: #e1f4f0;
+  --blue: #2d67bd;
+  --blue-soft: #eaf1fc;
+  --amber: #a96717;
+  --amber-soft: #fff4df;
+  --green: #2a8d64;
+  --red: #bc5550;
+  --shadow: 0 12px 32px rgba(17, 50, 65, .08);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--canvas); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+.sidebar { display: flex; flex-direction: column; gap: 22px; padding: 22px 15px 18px; color: #e8f5f4; background: var(--navy); }
+.brand { display: flex; align-items: baseline; gap: 8px; padding: 0 10px; font-size: 21px; letter-spacing: .01em; }
+.brand small { color: #99d3cd; font-size: 10px; letter-spacing: .14em; }
+.new-analysis { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid #4da9a2; border-radius: 6px; color: #fff; background: #17676d; }
+.new-analysis:hover { background: #217c80; }
+.nav { display: grid; gap: 3px; }
+.nav button { display: flex; align-items: center; gap: 10px; border: 0; border-radius: 6px; padding: 10px 11px; color: #b8d2d3; background: transparent; text-align: left; }
+.nav button:hover, .nav button.active { color: #fff; background: var(--navy-2); }
+.nav-icon { width: 19px; color: #82c3bf; text-align: center; }
+.side-label { padding: 14px 10px 7px; color: #7fa7ad; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.recent { display: grid; gap: 5px; }
+.recent button { display: grid; gap: 2px; border: 0; border-radius: 6px; padding: 9px 10px; color: #d2e5e4; background: transparent; text-align: left; }
+.recent button:hover { background: var(--navy-2); }
+.recent strong { font-size: 12px; font-weight: 500; }
+.recent span { color: #8db4b6; font-size: 11px; }
+.sidebar-foot { margin-top: auto; padding: 13px 10px 0; border-top: 1px solid #2d5360; color: #8caeb1; font-size: 11px; }
+.main { min-width: 0; padding: 20px 28px 34px; }
+.topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+.kicker { color: var(--teal); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.topbar h1 { margin: 4px 0 0; font-size: 25px; font-weight: 550; letter-spacing: 0; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
+.local-state { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.icon-button { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: var(--surface); }
+.icon-button:hover { color: var(--teal); border-color: #91c9c4; }
+.upload-band { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(290px, .7fr); gap: 18px; align-items: stretch; }
+.dropzone { display: grid; place-items: center; min-height: 218px; padding: 25px; border: 1px dashed #9cb9bf; border-radius: 9px; background: var(--surface); text-align: center; transition: border-color .15s, background .15s; }
+.dropzone.dragover { border-color: var(--teal); background: var(--teal-soft); }
+.dropzone-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 10px; border-radius: 50%; color: var(--teal); background: var(--teal-soft); font-size: 23px; }
+.dropzone h2 { margin: 0; font-size: 17px; font-weight: 550; }
+.dropzone p { margin: 6px 0 15px; color: var(--muted); font-size: 12px; }
+.upload-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.primary-button, .secondary-button { min-height: 36px; border-radius: 6px; padding: 8px 13px; }
+.primary-button { border: 1px solid var(--teal); color: #fff; background: var(--teal); }
+.primary-button:hover { background: #066e69; }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.secondary-button:hover { border-color: #8cbfbd; color: var(--teal); }
+.upload-info { display: flex; flex-direction: column; justify-content: space-between; padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.section-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.section-heading h2 { margin: 0; font-size: 15px; font-weight: 550; }
+.section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.file-row { display: flex; align-items: center; gap: 10px; margin-top: 17px; padding: 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+.file-mark { display: grid; place-items: center; width: 31px; height: 35px; border: 1px solid #aed1cf; border-radius: 5px; color: var(--teal); background: var(--teal-soft); font-size: 11px; font-weight: 600; }
+.file-copy { min-width: 0; }
+.file-copy strong { display: block; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
+.file-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+.file-remove { margin-left: auto; border: 0; color: var(--muted); background: transparent; font-size: 17px; }
+.file-remove:hover { color: var(--red); }
+.config { margin-top: 12px; padding-top: 13px; border-top: 1px solid var(--line); }
+.config-label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 11px; }
+.config-line { display: flex; align-items: center; gap: 8px; }
+.config select { min-width: 0; flex: 1; height: 35px; border: 1px solid var(--line); border-radius: 5px; padding: 0 8px; color: var(--ink); background: var(--surface); }
+.run-button { width: 100%; margin-top: 13px; }
+.progress { display: none; margin-top: 12px; }
+.progress.visible { display: block; }
+.progress-head { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+.progress-track { height: 6px; margin-top: 7px; overflow: hidden; border-radius: 5px; background: #e7eef0; }
+.progress-value { width: 0; height: 100%; background: var(--teal); transition: width .3s ease; }
+.progress-detail { margin-top: 6px; color: var(--teal); font-size: 11px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.stat { padding: 14px 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.stat strong { display: block; font-size: 23px; font-weight: 550; line-height: 1.1; }
+.stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.stat.teal strong { color: var(--teal); }
+.stat.green strong { color: var(--green); }
+.stat.amber strong { color: var(--amber); }
+.results-panel { margin-top: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.results-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; padding: 18px 18px 0; }
+.tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--line); padding: 0 18px; }
+.tab { position: relative; border: 0; padding: 12px 0 10px; color: var(--muted); background: transparent; font-size: 12px; }
+.tab.active { color: var(--teal); font-weight: 550; }
+.tab.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--teal); content: ""; }
+.table-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.search { height: 34px; min-width: 190px; border: 1px solid var(--line); border-radius: 5px; padding: 0 9px; color: var(--ink); background: var(--surface); }
+.filter { height: 34px; border: 1px solid var(--line); border-radius: 5px; padding: 0 8px; color: var(--ink); background: var(--surface); }
+.table-wrap { overflow-x: auto; padding: 0 18px 18px; }
+table { width: 100%; min-width: 760px; border-collapse: collapse; }
+th { padding: 12px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 550; text-align: left; white-space: nowrap; }
+td { padding: 12px 10px; border-bottom: 1px solid #edf2f3; color: var(--ink); font-size: 12px; vertical-align: middle; }
+tbody tr { cursor: pointer; }
+tbody tr:hover, tbody tr.selected { background: #f4fbfa; }
+tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
+.value-main { display: block; font-weight: 550; }
+.value-secondary { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+.quality { display: inline-flex; align-items: center; gap: 5px; border-radius: 4px; padding: 4px 7px; font-size: 11px; }
+.quality.gold { color: var(--green); background: #e4f4eb; }
+.quality.review { color: var(--amber); background: var(--amber-soft); }
+.quality-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.locator { color: var(--teal); font-size: 11px; }
+.empty-row { padding: 32px 12px; color: var(--muted); text-align: center; }
+.detail-panel { position: sticky; top: 18px; display: grid; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow); }
+.results-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; margin-top: 18px; }
+.results-layout .results-panel { min-width: 0; margin-top: 0; }
+.detail-title { display: flex; justify-content: space-between; gap: 9px; align-items: flex-start; }
+.detail-title h2 { margin: 0; font-size: 16px; font-weight: 550; }
+.detail-title p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.close-detail { border: 0; color: var(--muted); background: transparent; font-size: 18px; }
+.detail-value { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.detail-value strong { display: block; color: var(--teal-deep); font-size: 31px; font-weight: 550; line-height: 1.05; }
+.detail-value span { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 15px; }
+.field label { display: block; color: var(--muted); font-size: 10px; }
+.field div { margin-top: 3px; color: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
+.detail-section { padding-top: 13px; border-top: 1px solid var(--line); }
+.detail-section h3 { margin: 0 0 9px; color: var(--ink); font-size: 12px; font-weight: 550; }
+.quote { margin: 0; padding: 10px; border-left: 3px solid var(--teal); color: var(--ink); background: var(--soft); font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
+.path-list { display: grid; gap: 8px; }
+.path-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
+.path-num { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: var(--teal); background: var(--teal-soft); font-size: 10px; }
+.path-item strong { display: block; color: var(--ink); font-size: 11px; font-weight: 550; }
+.path-item span { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; }
+.verify { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 5px; color: var(--green); background: #e5f4eb; font-size: 11px; }
+.verify strong { font-weight: 600; }
+.lower-band { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-top: 18px; }
+.lower-panel { min-width: 0; padding: 17px 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.stage-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.stage { padding: 9px; border-top: 2px solid var(--line); }
+.stage.done { border-color: var(--teal); }
+.stage.active { border-color: var(--blue); }
+.stage span { display: block; color: var(--muted); font-size: 10px; }
+.stage strong { display: block; margin-top: 5px; color: var(--ink); font-size: 11px; font-weight: 550; }
+.stage.done strong { color: var(--teal); }
+.license-row, .metric-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #edf2f3; color: var(--muted); font-size: 11px; }
+.license-row:last-child, .metric-row:last-child { border-bottom: 0; }
+.license-row strong, .metric-row strong { color: var(--ink); font-weight: 550; text-align: right; }
+.footer-note { margin: 17px 2px 0; color: var(--muted); font-size: 11px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 1160px) {
+  .app { grid-template-columns: 200px minmax(0, 1fr); }
+  .main { padding-inline: 20px; }
+  .upload-band { grid-template-columns: 1fr; }
+  .upload-info { min-height: 0; }
+  .results-layout { grid-template-columns: minmax(0, 1fr) 290px; }
+}
+@media (max-width: 880px) {
+  .app { display: block; }
+  .sidebar { gap: 11px; padding: 13px 16px; }
+  .new-analysis { position: absolute; top: 11px; right: 16px; min-height: 34px; padding-inline: 10px; }
+  .nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .nav button { justify-content: center; padding: 8px 5px; font-size: 11px; }
+  .nav-icon { width: auto; }
+  .side-label, .recent, .sidebar-foot { display: none; }
+  .main { padding: 17px 14px 27px; }
+  .results-layout { grid-template-columns: 1fr; }
+  .detail-panel { position: static; }
+  .lower-band { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .topbar { display: block; }
+  .top-actions { justify-content: space-between; margin-top: 12px; }
+  .dropzone { min-height: 200px; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .results-head { display: block; }
+  .table-tools { justify-content: flex-start; margin-top: 12px; }
+  .search { min-width: 0; flex: 1; }
+  .stage-list { grid-template-columns: 1fr 1fr; }
+  .stage:last-child { grid-column: span 2; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="brand">ProvSci <small>DATA WORKSPACE</small></div>
+    <button class="new-analysis" type="button" id="new-analysis"><span aria-hidden="true">＋</span> 新建分析</button>
+    <nav class="nav" aria-label="主导航">
+      <button class="active" type="button"><span class="nav-icon" aria-hidden="true">▦</span>分析工作台</button>
+      <button type="button"><span class="nav-icon" aria-hidden="true">◷</span>运行记录</button>
+      <button type="button"><span class="nav-icon" aria-hidden="true">⌘</span>数据字典</button>
+      <button type="button"><span class="nav-icon" aria-hidden="true">✓</span>质量规则</button>
+    </nav>
+    <div>
+      <div class="side-label">最近运行</div>
+      <div class="recent">
+        <button type="button"><strong>PMC8415024 · IC50</strong><span>今天 14:53 · 6 条结果</span></button>
+        <button type="button"><strong>通用定量结果示例</strong><span>昨天 18:20 · 12 条结果</span></button>
+      </div>
+    </div>
+    <div class="sidebar-foot">本地工作区 · v0.3<br>结果默认保存在本机</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><div class="kicker">Scientific Data Workspace</div><h1>科研数据工作台</h1></div>
+      <div class="top-actions"><span class="local-state"><i class="status-dot"></i>本地处理模式</span><button class="icon-button" type="button" id="help-button" aria-label="查看当前模式">?</button></div>
+    </header>
+
+    <section class="upload-band" id="upload-section">
+      <div class="dropzone" id="dropzone">
+        <div>
+          <div class="dropzone-icon" aria-hidden="true">↑</div>
+          <h2>把论文或实验文件放到这里</h2>
+          <p>支持 XML / JATS、JSON、CSV、TXT、Markdown、HTML、XLSX、PDF</p>
+          <div class="upload-actions"><button class="primary-button" type="button" id="choose-file">选择文件</button><button class="secondary-button" type="button" id="load-demo">载入演示论文</button></div>
+          <input class="sr-only" id="file-input" type="file" accept=".xml,.nxml,.json,.csv,.tsv,.txt,.md,.html,.htm,.xlsx,.pdf">
+        </div>
+      </div>
+      <div class="upload-info">
+        <div>
+          <div class="section-heading"><div><h2>当前任务</h2><p id="task-state">等待输入文件</p></div><span class="quality gold" id="task-badge"><i class="quality-dot"></i>就绪</span></div>
+          <div class="file-row" id="file-row" hidden><span class="file-mark" id="file-mark">XML</span><div class="file-copy"><strong id="file-name">PMC8415024.nxml</strong><span id="file-meta">84 KB · 已载入</span></div><button class="file-remove" type="button" id="remove-file" aria-label="移除文件">×</button></div>
+        </div>
+        <div class="config"><label class="config-label" for="profile">分析场景</label><div class="config-line"><select id="profile"><option>通用科学定量结果</option><option>生物医学细胞活性</option><option>材料性能实验</option></select></div><button class="primary-button run-button" type="button" id="run-button">开始分析</button><div class="progress" id="progress"><div class="progress-head"><span id="progress-label">准备中</span><span id="progress-percent">0%</span></div><div class="progress-track"><div class="progress-value" id="progress-value"></div></div><div class="progress-detail" id="progress-detail">等待任务</div></div></div>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="结果概览">
+      <div class="stat teal"><strong id="stat-total">6</strong><span>已识别结果</span></div>
+      <div class="stat green"><strong id="stat-gold">6</strong><span>Gold · 验证通过</span></div>
+      <div class="stat amber"><strong id="stat-review">0</strong><span>待人工复核</span></div>
+      <div class="stat"><strong id="stat-coverage">100%</strong><span>证据覆盖率</span></div>
+    </section>
+
+    <div class="results-layout">
+      <section class="results-panel" id="results-section">
+        <div class="results-head"><div class="section-heading"><div><h2>结构化结果</h2><p>每一行都可以回到原文证据和处理路径</p></div></div><div class="table-tools"><label class="sr-only" for="search">搜索结果</label><input class="search" id="search" type="search" placeholder="搜索对象、指标或条件"><select class="filter" id="quality-filter" aria-label="按质量筛选"><option value="all">全部质量</option><option value="gold">Gold</option><option value="review">人工复核</option></select><button class="secondary-button" type="button" id="export-button">导出 CSV</button></div></div>
+        <div class="tabs" role="tablist"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="table">数据表格</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="trace">处理轨迹</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="quality">质量概览</button></div>
+        <div class="table-wrap" id="table-view"><table><thead><tr><th>研究对象</th><th>指标</th><th>结果值</th><th>单位</th><th>实验条件</th><th>证据位置</th><th>质量</th></tr></thead><tbody id="results-body"></tbody></table><div class="empty-row" id="empty-row" hidden>没有匹配的结果</div></div>
+        <div class="table-wrap" id="trace-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>本次运行轨迹</h2><p>从文件进入到结果落库的阶段状态</p></div></div><div class="stage-list" id="trace-stages"><div class="stage done"><span>01</span><strong>读取文件</strong></div><div class="stage done"><span>02</span><strong>结构化适配</strong></div><div class="stage done"><span>03</span><strong>候选挖掘</strong></div><div class="stage done"><span>04</span><strong>证据与路径</strong></div><div class="stage done"><span>05</span><strong>verifier 重算</strong></div></div></div></div>
+        <div class="table-wrap" id="quality-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>质量门禁</h2><p>当前运行的可审计性检查</p></div></div><div class="metric-row"><span>Evidence coverage</span><strong id="quality-evidence">1.0000</strong></div><div class="metric-row"><span>Path reproducibility</span><strong id="quality-path">1.0000</strong></div><div class="metric-row"><span>Condition match rate</span><strong id="quality-condition">1.0000</strong></div><div class="metric-row"><span>Source license</span><strong>CC-BY-4.0 · 已确认</strong></div></div></div>
+      </section>
+
+      <aside class="detail-panel" id="detail-panel" aria-live="polite">
+        <div class="detail-title"><div><h2 id="detail-heading">SW480 · IC50</h2><p id="detail-subheading">当前选中结果 · TABLE 1</p></div><button class="close-detail" type="button" id="close-detail" aria-label="关闭详情">×</button></div>
+        <div class="detail-value"><strong id="detail-value">15.34 ± 0.81</strong><span id="detail-unit">μM · 24 h</span></div>
+        <div class="field-grid"><div class="field"><label>entity</label><div id="field-entity">SW480</div></div><div class="field"><label>metric</label><div id="field-metric">IC50</div></div><div class="field"><label>result_type</label><div>measurement</div></div><div class="field"><label>condition</label><div id="field-condition">24 h · explicit</div></div></div>
+        <div class="detail-section"><h3>Evidence locator</h3><p class="quote" id="detail-quote">TABLE 1 → row SW480 → col IC50(μM) / 24 h\n原文：15.34 ± 0.81</p><button class="secondary-button" style="margin-top:9px" type="button" id="source-button">打开来源信息</button></div>
+        <div class="detail-section"><h3>Acquisition path</h3><div class="path-list" id="detail-path"></div></div>
+        <div class="verify"><span>verifier replay</span><strong id="detail-verify">PASS · 证据一致</strong></div>
+      </aside>
+    </div>
+
+    <section class="lower-band">
+      <div class="lower-panel"><div class="section-heading"><div><h2>处理阶段</h2><p id="run-summary">本次运行已完成</p></div><span class="quality gold"><i class="quality-dot"></i>已完成</span></div><div class="stage-list"><div class="stage done"><span>01</span><strong>读取文件</strong></div><div class="stage done"><span>02</span><strong>结构化适配</strong></div><div class="stage done"><span>03</span><strong>候选挖掘</strong></div><div class="stage done"><span>04</span><strong>证据与路径</strong></div><div class="stage done"><span>05</span><strong>verifier 重算</strong></div></div></div>
+      <div class="lower-panel"><div class="section-heading"><div><h2>来源与许可</h2><p>结果可追溯到原始文件</p></div></div><div class="license-row"><span>文献</span><strong id="source-doc">PMC8415024</strong></div><div class="license-row"><span>来源</span><strong>Europe PMC / JATS</strong></div><div class="license-row"><span>许可证</span><strong style="color:var(--green)">CC-BY-4.0 · 已确认</strong></div><div class="license-row"><span>文件指纹</span><strong id="source-hash">sha256: 0fa00f13…e521b0</strong></div></div>
+    </section>
+    <p class="footer-note">当前为本地产品原型：演示论文使用已验证的真实结果；上传 JSON/CSV/TXT 可在浏览器中预览解析，接入后端后可运行完整 ProvSci pipeline。</p>
+  </main>
+</div>
+<script>
+(() => {
+  const DEMO_ROWS = [
+    {id:'sw480-12', entity:'SW480', metric:'IC50', value:'16.17 ± 0.76', number:16.17, uncertainty:.76, unit:'μM', condition:'12 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 12 h', quality:'gold', quote:'16.17 ± 0.76', path:[['extract_table_cell','TABLE 1 / SW480 / 12 h'],['parse_measurement','16.17 ± 0.76 μM']]},
+    {id:'sw480-24', entity:'SW480', metric:'IC50', value:'15.34 ± 0.81', number:15.34, uncertainty:.81, unit:'μM', condition:'24 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 24 h', quality:'gold', quote:'15.34 ± 0.81', path:[['extract_table_cell','TABLE 1 / SW480 / 24 h'],['parse_measurement','15.34 ± 0.81 μM']]},
+    {id:'sw480-36', entity:'SW480', metric:'IC50', value:'12.11 ± 0.97', number:12.11, uncertainty:.97, unit:'μM', condition:'36 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 36 h', quality:'gold', quote:'12.11 ± 0.97', path:[['extract_table_cell','TABLE 1 / SW480 / 36 h'],['parse_measurement','12.11 ± 0.97 μM']]},
+    {id:'sw1116-12', entity:'SW1116', metric:'IC50', value:'7.60 ± 0.62', number:7.6, uncertainty:.62, unit:'μM', condition:'12 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 12 h', quality:'gold', quote:'7.60 ± 0.62', path:[['extract_table_cell','TABLE 1 / SW1116 / 12 h'],['parse_measurement','7.60 ± 0.62 μM']]},
+    {id:'sw1116-24', entity:'SW1116', metric:'IC50', value:'6.27 ± 0.70', number:6.27, uncertainty:.7, unit:'μM', condition:'24 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 24 h', quality:'gold', quote:'6.27 ± 0.70', path:[['extract_table_cell','TABLE 1 / SW1116 / 24 h'],['parse_measurement','6.27 ± 0.70 μM']]},
+    {id:'sw1116-36', entity:'SW1116', metric:'IC50', value:'5.76 ± 0.81', number:5.76, uncertainty:.81, unit:'μM', condition:'36 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 36 h', quality:'gold', quote:'5.76 ± 0.81', path:[['extract_table_cell','TABLE 1 / SW1116 / 36 h'],['parse_measurement','5.76 ± 0.81 μM']]}
+  ];
+  const state = {rows: DEMO_ROWS.slice(), selected: 'sw480-24', file: {name:'PMC8415024.nxml', size:'84 KB', type:'XML'}, upload:null, running:false};
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+
+  function setFile(file) {
+    state.file = file;
+    $('file-row').hidden = false;
+    $('file-name').textContent = file.name;
+    $('file-meta').textContent = `${file.size || '本地文件'} · 已载入`;
+    $('file-mark').textContent = (file.name.split('.').pop() || 'FILE').slice(0,4).toUpperCase();
+    $('task-state').textContent = '文件已载入，可开始分析';
+    $('task-badge').innerHTML = '<i class="quality-dot"></i>待运行';
+    $('task-badge').className = 'quality review';
+  }
+  function resetFile() {
+    state.file = null;
+    $('file-row').hidden = true;
+    $('task-state').textContent = '等待输入文件';
+    $('task-badge').innerHTML = '<i class="quality-dot"></i>就绪';
+    $('task-badge').className = 'quality gold';
+  }
+  function parseCSV(text) {
+    const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(/[,\t]/).map(v => v.trim().toLowerCase());
+    const find = names => names.map(name => headers.indexOf(name)).find(index => index >= 0);
+    const ei = find(['entity','sample','object','研究对象']);
+    const mi = find(['metric','measure','指标']);
+    const vi = find(['value','result','数值','结果']);
+    const ui = find(['unit','单位']);
+    const ci = find(['condition','time','条件']);
+    return lines.slice(1).map((line, index) => {
+      const cells = line.split(/[,\t]/).map(v => v.trim());
+      const value = cells[vi ?? 2] || '';
+      const match = value.match(/([-+]?\d+(?:\.\d+)?)\s*(?:±|\+\/-)\s*(\d+(?:\.\d+)?)/);
+      const number = Number.parseFloat(value);
+      return {id:`upload-${index}`, entity:cells[ei ?? 0] || '未命名对象', metric:cells[mi ?? 1] || 'measurement', value, number:Number.isFinite(number) ? number : (match ? Number(match[1]) : 0), uncertainty:match ? Number(match[2]) : null, unit:cells[ui ?? 3] || '—', condition:cells[ci ?? 4] || '未标注', locator:'上传文件 · 待生成定位', quality:'review', quote:value, path:[['read_uploaded_file','浏览器已读取文件'],['await_pipeline','等待后端生成证据路径']]};
+    });
+  }
+  function parseJSON(text) {
+    try {
+      const parsed = JSON.parse(text);
+      const list = Array.isArray(parsed) ? parsed : (parsed.results || parsed.items || parsed.data || []);
+      return list.map((item, index) => {
+        const card = item.result_card || item;
+        const condition = card.condition?.text || card.condition || item.condition || '未标注';
+        const value = card.display || card.raw_value || item.value || '';
+        return {id:`upload-${index}`, entity:card.entity || item.entity || '未命名对象', metric:card.metric || item.metric || 'measurement', value:String(value), number:Number(card.value ?? item.value) || 0, uncertainty:card.uncertainty ?? item.uncertainty ?? null, unit:card.unit || item.unit || '—', condition:String(condition), locator:item.evidence?.[0]?.locator ? `${item.evidence[0].locator.table_id || '证据'} · row ${item.evidence[0].locator.row || '—'} · col ${item.evidence[0].locator.col || '—'}` : '上传文件 · 待生成定位', quality:item.verification?.status === 'pass' ? 'gold' : 'review', quote:item.evidence?.[0]?.span_text || String(value), path:[['parse_uploaded_json','JSON 字段已读取'],['await_pipeline','等待后端生成证据路径']]};
+      });
+    } catch (_) { return []; }
+  }
+  function renderRows() {
+    const query = $('search').value.trim().toLowerCase();
+    const quality = $('quality-filter').value;
+    const rows = state.rows.filter(row => {
+      const matchesText = !query || [row.entity,row.metric,row.value,row.condition,row.locator].join(' ').toLowerCase().includes(query);
+      return matchesText && (quality === 'all' || row.quality === quality);
+    });
+    $('empty-row').hidden = rows.length !== 0;
+    $('results-body').innerHTML = rows.map(row => `<tr data-id="${esc(row.id)}" class="${row.id === state.selected ? 'selected' : ''}"><td><span class="value-main">${esc(row.entity)}</span><span class="value-secondary">${esc(row.metric)}</span></td><td>${esc(row.metric)}</td><td><span class="value-main">${esc(row.value)}</span></td><td>${esc(row.unit)}</td><td>${esc(row.condition)}</td><td><span class="locator">${esc(row.locator)}</span></td><td><span class="quality ${row.quality}"><i class="quality-dot"></i>${row.quality === 'gold' ? 'Gold' : '人工复核'}</span></td></tr>`).join('');
+    $('results-body').querySelectorAll('tr').forEach(row => row.addEventListener('click', () => { state.selected = row.dataset.id; renderRows(); renderDetail(); }));
+  }
+  function renderDetail() {
+    const row = state.rows.find(item => item.id === state.selected) || state.rows[0];
+    if (!row) return;
+    $('detail-heading').textContent = `${row.entity} · ${row.metric}`;
+    $('detail-subheading').textContent = `当前选中结果 · ${row.quality === 'gold' ? 'Gold' : 'Human Review'}`;
+    $('detail-value').textContent = row.value || '—';
+    $('detail-unit').textContent = `${row.unit} · ${row.condition}`;
+    $('field-entity').textContent = row.entity;
+    $('field-metric').textContent = row.metric;
+    $('field-condition').textContent = `${row.condition} · ${row.condition === '未标注' ? 'missing' : 'explicit'}`;
+    $('detail-quote').textContent = `${row.locator}\n原文：${row.quote || row.value || '—'}`;
+    $('detail-path').innerHTML = row.path.map((step, index) => `<div class="path-item"><i class="path-num">${index + 1}</i><div><strong>${esc(step[0])}</strong><span>${esc(step[1])}</span></div></div>`).join('');
+    $('detail-verify').textContent = row.quality === 'gold' ? 'PASS · 证据一致' : '待复核 · 暂不入 Gold';
+    $('detail-verify').parentElement.style.color = row.quality === 'gold' ? 'var(--green)' : 'var(--amber)';
+    $('detail-verify').parentElement.style.background = row.quality === 'gold' ? '#e5f4eb' : 'var(--amber-soft)';
+  }
+  function renderStats() {
+    const gold = state.rows.filter(row => row.quality === 'gold').length;
+    $('stat-total').textContent = state.rows.length;
+    $('stat-gold').textContent = gold;
+    $('stat-review').textContent = state.rows.length - gold;
+    $('stat-coverage').textContent = state.rows.length && gold === state.rows.length ? '100%' : `${Math.round(gold / Math.max(1, state.rows.length) * 100)}%`;
+    $('run-summary').textContent = `${state.rows.length} 条结果 · ${gold} 条通过验证`;
+  }
+  function loadDemo() {
+    state.rows = DEMO_ROWS.slice(); state.selected = 'sw480-24'; state.upload = null;
+    setFile({name:'PMC8415024.nxml', size:'84 KB', type:'XML'});
+    renderStats(); renderRows(); renderDetail();
+    $('quality-evidence').textContent = '1.0000'; $('quality-path').textContent = '1.0000'; $('quality-condition').textContent = '1.0000';
+    $('source-doc').textContent = 'PMC8415024'; $('source-hash').textContent = 'sha256: 0fa00f13…e521b0';
+  }
+  async function readFile(file) {
+    state.upload = file;
+    const text = await file.text();
+    const lower = file.name.toLowerCase();
+    let rows = lower.endsWith('.csv') || lower.endsWith('.tsv') ? parseCSV(text) : (lower.endsWith('.json') ? parseJSON(text) : []);
+    if (!rows.length && /\.txt$|\.md$|\.html?$|\.xml$|\.nxml$/.test(lower)) {
+      const values = [...text.matchAll(/([-+]?\d+(?:\.\d+)?)\s*(?:±|\+\/-)\s*(\d+(?:\.\d+)?)\s*(μM|uM|mM|%|°C|C|h|hours?)/gi)];
+      rows = values.slice(0, 20).map((match, index) => ({id:`upload-${index}`, entity:'待识别对象', metric:'measurement', value:`${match[1]} ± ${match[2]}`, number:Number(match[1]), uncertainty:Number(match[2]), unit:match[3], condition:'未标注', locator:'上传文件 · 待生成定位', quality:'review', quote:match[0], path:[['read_uploaded_text','浏览器已读取文本'],['await_pipeline','等待后端生成证据路径']]}));
+    }
+    state.rows = rows.length ? rows : [{id:'upload-0', entity:'文件已接收', metric:'待分析', value:'—', number:0, uncertainty:null, unit:'—', condition:'待解析', locator:'上传文件 · 待后端处理', quality:'review', quote:'当前浏览器已接收文件；完整解析需要连接 ProvSci pipeline。', path:[['read_uploaded_file','文件已读取'],['await_pipeline','等待后端处理']]}];
+    state.selected = state.rows[0].id;
+    setFile({name:file.name, size:`${Math.max(1, Math.round(file.size / 1024))} KB`, type:file.name.split('.').pop().toUpperCase()});
+    renderStats(); renderRows(); renderDetail();
+    $('quality-evidence').textContent = '待运行'; $('quality-path').textContent = '待运行'; $('quality-condition').textContent = '待运行';
+    $('source-doc').textContent = '本地上传文件'; $('source-hash').textContent = '运行后生成';
+  }
+  function applyApiResult(payload) {
+    if (!payload || !Array.isArray(payload.results)) throw new Error('分析服务返回的数据格式不正确');
+    state.rows = payload.results.length ? payload.results : [{id:'upload-0', entity:'没有识别到结果', metric:'—', value:'—', number:0, uncertainty:null, unit:'—', condition:'—', locator:'没有可用证据', quality:'review', quote:'文件已处理，但没有识别到可验证的定量结果。', path:[['pipeline_complete','没有候选结果']]}];
+    state.selected = state.rows[0].id;
+    const summary = payload.summary || {};
+    const verifiedCount = state.rows.filter(row => row.quality === 'gold').length;
+    $('quality-evidence').textContent = Number(summary.evidence_coverage ?? (state.rows.length && state.rows.every(row => row.locator) ? 1 : 0)).toFixed(4);
+    $('quality-path').textContent = Number(summary.path_reproducibility ?? (state.rows.length ? verifiedCount / state.rows.length : 0)).toFixed(4);
+    $('quality-condition').textContent = Number(summary.condition_match_rate ?? (state.rows.length ? state.rows.filter(row => row.condition !== '未标注').length / state.rows.length : 0)).toFixed(4);
+    $('source-doc').textContent = summary.doc_id || '本地上传文件';
+    $('source-hash').textContent = summary.source?.source_hash ? `sha256: ${summary.source.source_hash.slice(0, 8)}…${summary.source.source_hash.slice(-6)}` : '已记录';
+    renderStats(); renderRows(); renderDetail();
+  }
+  function finishAnalysis() {
+    state.running = false; $('run-button').disabled = false; $('run-button').textContent = '重新分析'; $('task-state').textContent = '分析完成，可查看结果'; $('task-badge').innerHTML = '<i class="quality-dot"></i>已完成'; $('task-badge').className = 'quality gold'; renderStats(); renderRows(); renderDetail();
+  }
+  function runSimulation() {
+    const stages = [['读取文件', '读取原始文档'], ['结构化适配', '整理章节、表格和字段'], ['候选挖掘', '寻找数字、单位和实验条件'], ['证据与路径', '生成 locator 和 acquisition path'], ['verifier 重算', '清空答案后重新计算']];
+    let index = 0;
+    const tick = () => {
+      const percent = Math.round((index + 1) / stages.length * 100);
+      $('progress-label').textContent = stages[index][0]; $('progress-detail').textContent = stages[index][1]; $('progress-percent').textContent = `${percent}%`; $('progress-value').style.width = `${percent}%`;
+      index += 1;
+      if (index < stages.length) window.setTimeout(tick, 430); else window.setTimeout(() => { state.rows = state.rows.map(row => ({...row, quality: row.quality === 'gold' ? 'gold' : 'review'})); finishAnalysis(); }, 350);
+    };
+    tick();
+  }
+  async function runRemoteAnalysis() {
+    $('progress-label').textContent = '提交任务'; $('progress-detail').textContent = '文件正在发送到本地 ProvSci pipeline'; $('progress-percent').textContent = '20%'; $('progress-value').style.width = '20%';
+    const form = new FormData(); form.append('file', state.upload, state.upload.name);
+    const response = await fetch('/api/analyze', {method:'POST', body:form});
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || '分析服务请求失败');
+    $('progress-label').textContent = '验证完成'; $('progress-detail').textContent = '结果已由本地 pipeline 返回'; $('progress-percent').textContent = '100%'; $('progress-value').style.width = '100%';
+    applyApiResult(payload); finishAnalysis();
+  }
+  function runAnalysis() {
+    if (state.running) return;
+    state.running = true; $('run-button').disabled = true; $('run-button').textContent = '分析进行中…'; $('progress').classList.add('visible');
+    if (state.upload && window.location.protocol.startsWith('http')) {
+      runRemoteAnalysis().catch(error => { $('progress-detail').textContent = `服务未连接，使用浏览器预览：${error.message}`; runSimulation(); });
+    } else runSimulation();
+  }
+  function exportCSV() {
+    const header = ['entity','metric','value','unit','condition','quality','locator'];
+    const body = state.rows.map(row => [row.entity,row.metric,row.value,row.unit,row.condition,row.quality,row.locator].map(value => `"${String(value).replaceAll('"','""')}"`).join(','));
+    const blob = new Blob([[header.join(','), ...body].join('\n')], {type:'text/csv;charset=utf-8'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'provsci-results.csv'; link.click(); URL.revokeObjectURL(link.href);
+  }
+
+  $('choose-file').addEventListener('click', () => $('file-input').click());
+  $('file-input').addEventListener('change', event => { const file = event.target.files[0]; if (file) readFile(file); });
+  $('load-demo').addEventListener('click', loadDemo);
+  $('new-analysis').addEventListener('click', () => { resetFile(); $('file-input').value = ''; $('upload-section').scrollIntoView({behavior:'smooth'}); });
+  $('remove-file').addEventListener('click', () => { resetFile(); $('file-input').value = ''; });
+  $('run-button').addEventListener('click', runAnalysis);
+  $('search').addEventListener('input', renderRows);
+  $('quality-filter').addEventListener('change', renderRows);
+  $('export-button').addEventListener('click', exportCSV);
+  $('close-detail').addEventListener('click', () => { $('detail-panel').scrollIntoView({behavior:'smooth', block:'center'}); });
+  $('source-button').addEventListener('click', () => window.open('https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML', '_blank', 'noopener'));
+  $('help-button').addEventListener('click', () => window.alert('当前是本地产品原型。载入演示论文可查看完整审计链；上传 CSV/JSON/TXT 可预览浏览器解析结果。'));
+  ['dragenter','dragover'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.remove('dragover'); }));
+  $('dropzone').addEventListener('drop', event => { const file = event.dataTransfer.files[0]; if (file) readFile(file); });
+  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(item => { item.classList.toggle('active', item === tab); item.setAttribute('aria-selected', String(item === tab)); }); ['table','trace','quality'].forEach(name => { $(`${name}-view`).hidden = tab.dataset.tab !== name; }); }));
+  loadDemo();
+})();
+</script>
+</body>
+</html>

@@ -3,19 +3,19 @@
   "documents": [
     {
       "path": "../real/PMC13272437.nxml",
-      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13272437/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+      "metadata": {"domain": "scientific_quantitative_result_v1", "doi": "10.3389/fonc.2026.1807785", "pmid": "42318457", "license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13272437/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-29", "retrieval_method": "checked_in_fixture"}
     },
     {
       "path": "../real/PMC8415024.nxml",
-      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+      "metadata": {"domain": "scientific_quantitative_result_v1", "doi": "10.3389/fphar.2021.717529", "pmid": "34483925", "license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-29", "retrieval_method": "checked_in_fixture"}
     },
     {
       "path": "../real/PMC9857184.nxml",
-      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9857184/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+      "metadata": {"domain": "scientific_quantitative_result_v1", "license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9857184/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-29", "retrieval_method": "checked_in_fixture"}
     },
     {
       "path": "../real/PMC2010468.nxml",
-      "metadata": {"license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC2010468/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-21"}
+      "metadata": {"domain": "scientific_quantitative_result_v1", "license": "CC-BY-4.0", "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC2010468/fullTextXML", "license_source": "PMC OA record / article JATS permissions", "retrieved_at": "2026-08-29", "retrieval_method": "checked_in_fixture"}
     }
   ]
 }

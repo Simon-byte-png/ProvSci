@@ -26,10 +26,15 @@ _UNIT_FACTORS: dict[str, tuple[str, float, str]] = {
     "M": ("concentration", 1.0, "M"),
     "mM": ("concentration", 1e-3, "M"),
     "uM": ("concentration", 1e-6, "M"),
-    "um": ("concentration", 1e-6, "M"),
+    # Lower-case ``m`` is the SI metre symbol.  Concentration aliases use
+    # an upper-case ``M`` (``uM``/``μM``), so keeping these dimensions
+    # separate avoids silently normalising a length as molarity.
     "μM": ("concentration", 1e-6, "M"),
     "nM": ("concentration", 1e-9, "M"),
-    "nm": ("concentration", 1e-9, "M"),
+    "nm": ("length", 1e-9, "m"),
+    "um": ("length", 1e-6, "m"),
+    "μm": ("length", 1e-6, "m"),
+    "m": ("length", 1.0, "m"),
     "pM": ("concentration", 1e-12, "M"),
     "%": ("ratio", 1.0, "%"),
     "K": ("temperature", 1.0, "K"),
@@ -48,10 +53,37 @@ _UNIT_FACTORS: dict[str, tuple[str, float, str]] = {
     "μL": ("volume", 1e-3, "mL"),
     "U/ml": ("activity_concentration", 1.0, "U/ml"),
     "U/mL": ("activity_concentration", 1.0, "U/ml"),
+    "mol/L": ("concentration", 1.0, "M"),
+    "mmol/L": ("concentration", 1e-3, "M"),
+    "μmol/L": ("concentration", 1e-6, "M"),
+    "umol/L": ("concentration", 1e-6, "M"),
+    "nmol/L": ("concentration", 1e-9, "M"),
     "mg/mL": ("mass_concentration", 1.0, "mg/mL"),
     "ug/mL": ("mass_concentration", 1e-3, "mg/mL"),
     "μg/mL": ("mass_concentration", 1e-3, "mg/mL"),
     "ng/mL": ("mass_concentration", 1e-6, "mg/mL"),
+    "ng": ("mass", 1e-6, "g"),
+    "μg": ("mass", 1e-6, "g"),
+    "ug": ("mass", 1e-6, "g"),
+    "mm": ("length", 1e-3, "m"),
+    "cm": ("length", 1e-2, "m"),
+    "Pa": ("pressure", 1.0, "Pa"),
+    "kPa": ("pressure", 1e3, "Pa"),
+    "MPa": ("pressure", 1e6, "Pa"),
+    "bar": ("pressure", 1e5, "Pa"),
+    "J": ("energy", 1.0, "J"),
+    "kJ": ("energy", 1e3, "J"),
+    "eV": ("energy", 1.0, "eV"),
+    "keV": ("energy", 1e3, "eV"),
+    "W": ("power", 1.0, "W"),
+    "kW": ("power", 1e3, "W"),
+    "mol": ("amount", 1.0, "mol"),
+    "mmol": ("amount", 1e-3, "mol"),
+    "μmol": ("amount", 1e-6, "mol"),
+    "umol": ("amount", 1e-6, "mol"),
+    "nmol": ("amount", 1e-9, "mol"),
+    "day": ("time", 86400.0, "s"),
+    "d": ("time", 86400.0, "s"),
 }
 
 _NUMBER_RE = r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
@@ -103,6 +135,9 @@ def extract_measurement_occurrences(text: str) -> list[tuple[int, int, NumberUni
     occurrences: list[tuple[int, int, NumberUnit, float | None]] = []
     for match in _TEXT_MEASUREMENT_RE.finditer(text.replace("µ", "μ")):
         unit = match.group(4)
+        # Ambiguous one-letter suffixes such as ``9C`` (figure labels),
+        # ``1.54g`` (ImageJ versions), and ``2M`` are accepted only when a
+        # separating space makes the scientific-unit interpretation explicit.
         if unit in {"C", "K", "g", "M"} and not match.group(3) and not text[match.start():match.end()].startswith("°"):
             continue
         raw = f"{match.group(1)} {unit}"
@@ -140,9 +175,11 @@ def convert(value: NumberUnit, target_unit: str) -> NumberUnit:
     target_dimension, target_factor, target_base = _UNIT_FACTORS[target_unit]
     if source_dimension != target_dimension:
         raise ValueParseError(f"incompatible units: {value.unit} -> {target_unit}")
-    if source_dimension == "temperature" and {value.unit, target_unit} == {"C", "K"}:
-        if value.unit == "C" and target_unit == "K":
+    if source_dimension == "temperature" and value.unit in {"C", "°C", "K"} and target_unit in {"C", "°C", "K"}:
+        if value.unit in {"C", "°C"} and target_unit == "K":
             return NumberUnit(value.value + 273.15, "K")
-        return NumberUnit(value.value - 273.15, "C")
+        if value.unit == "K" and target_unit in {"C", "°C"}:
+            return NumberUnit(value.value - 273.15, target_unit)
+        return NumberUnit(value.value, target_unit)
     base_value = value.value * source_factor
     return NumberUnit(base_value / target_factor, target_base)

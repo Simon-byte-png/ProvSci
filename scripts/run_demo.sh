@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 RUN_DIR=${1:-work/demo-run}
 PYTHONPATH=src python3 -m provsci.cli run \
-  --input examples/documents/biophysics_demo.json \
+  --input examples/documents/generic_results_demo.json \
   --output "$RUN_DIR"
 
 printf '\nArtifacts written to %s\n' "$RUN_DIR"

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from .profile import DEFAULT_DOMAIN
+
 
 def enrich_sample(sample: dict[str, Any]) -> dict[str, Any]:
     """Attach inspectable result labels and processing provenance.
@@ -44,10 +46,41 @@ def enrich_sample(sample: dict[str, Any]) -> dict[str, Any]:
         "difficulty": round(min(difficulty, 1.0), 4),
         "classifier": "rules_v0.1",
     }
+    answer = task.get("answer", {})
+    result_card = sample.setdefault("result_card", {})
+    result_card.update({
+        "schema_version": "result_card.v1",
+        "domain": result_card.get("domain") or sample.get("source", {}).get("domain") or DEFAULT_DOMAIN,
+        "result_type": result_type,
+        "entity": answer.get("entity") or answer.get("subject") or task.get("subject"),
+        "metric": answer.get("metric") or ("relation" if task_type == "relation" else None),
+        "value": answer.get("value"),
+        "unit": str(answer.get("unit", "")),
+        "display": answer.get("display", str(answer.get("value", ""))),
+        "condition": result_card.get("condition") or {
+            "text": answer.get("condition"),
+            "source": "column_header" if answer.get("condition") else "not_extracted",
+            "status": "explicit" if answer.get("condition") else "not_extracted",
+            "fields": dict(answer.get("condition_fields") or {}),
+        },
+        "uncertainty": answer.get("uncertainty"),
+        "raw_value": answer.get("display", str(answer.get("value", ""))),
+        "normalized_value": {
+            "value": answer.get("value"),
+            "unit": str(answer.get("unit", "")),
+        },
+    })
+    if task_type == "relation":
+        result_card["subject"] = answer.get("subject")
+        result_card["object"] = answer.get("object")
     sample["processing"] = {
         "operations": processing_ops,
         "raw_value_preserved": True,
         "normalization": "number_unit_v0.1" if task_type == "numeric_qa" else "text_relation_v0.1",
+        "raw_value": answer.get("display", str(answer.get("value", ""))),
+        "parsed_value": {"value": answer.get("value"), "unit": str(answer.get("unit", ""))},
+        "standardized_value": {"value": answer.get("value"), "unit": str(answer.get("unit", ""))},
+        "transformations": list(processing_ops),
     }
     if task_type == "numeric_qa" and "text" in modalities:
         answer = task.get("answer", {})
@@ -56,7 +89,17 @@ def enrich_sample(sample: dict[str, Any]) -> dict[str, Any]:
             sample["quality"]["failure_mode"] = "underspecified_question"
     if task_type == "relation":
         answer = task.get("answer", {})
-        if not answer.get("subject") or not answer.get("object"):
+        subject = str(answer.get("subject", "")).strip()
+        object_text = str(answer.get("object", "")).strip()
+        leading_noise = ("as shown", "to determine", "to explore", "when ", "compared with", ",", "as the concentration")
+        if (
+            not subject
+            or not object_text
+            or subject.casefold().startswith(leading_noise)
+            or object_text.casefold().startswith(leading_noise)
+            or len(subject.split()) > 20
+            or len(object_text.split()) > 24
+        ):
             sample.setdefault("quality", {})["needs_human_review"] = True
             sample["quality"]["failure_mode"] = "underspecified_relation"
     return sample

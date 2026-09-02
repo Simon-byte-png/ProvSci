@@ -1,0 +1,20 @@
+{
+  "doc_id": "doi:10.1234/provsci-generic-demo",
+  "title": "A generic scientific measurement example",
+  "year": 2024,
+  "license": "CC-BY-4.0",
+  "local_path": "raw/demo/generic-results.pdf",
+  "metadata": {"parser_version": "normalized-v0", "domain": "scientific_quantitative_result_v1"},
+  "tables": [
+    {
+      "id": "Table 1",
+      "page": 2,
+      "caption": "Measured process results after 2 h",
+      "columns": ["Batch", "Yield (%)", "Temperature (°C)", "Pressure (kPa)"],
+      "rows": [
+        {"Batch": "Batch A", "Yield (%)": "82.5", "Temperature (°C)": "37", "Pressure (kPa)": "101"},
+        {"Batch": "Batch B", "Yield (%)": "91.2", "Temperature (°C)": "40", "Pressure (kPa)": "95"}
+      ]
+    }
+  ]
+}

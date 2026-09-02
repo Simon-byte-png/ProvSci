@@ -16,7 +16,7 @@ _SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 
 def validate_sample_contract(sample: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    _require_keys(sample, ("id", "source", "task", "evidence", "acquisition_path", "processing", "verification", "quality", "split"), "sample", errors)
+    _require_keys(sample, ("id", "source", "task", "result_card", "evidence", "acquisition_path", "processing", "verification", "quality", "split"), "sample", errors)
 
     source = sample.get("source")
     if not isinstance(source, dict):
@@ -46,6 +46,21 @@ def validate_sample_contract(sample: dict[str, Any]) -> list[str]:
         else:
             _require_keys(classification, ("result_type", "modalities", "task_family", "difficulty", "classifier"), "task.classification", errors)
 
+    result_card = sample.get("result_card")
+    if not isinstance(result_card, dict):
+        errors.append("result_card must be an object")
+    else:
+        _require_keys(
+            result_card,
+            ("schema_version", "domain", "result_type", "entity", "metric", "value", "unit", "display", "condition", "raw_value", "normalized_value"),
+            "result_card",
+            errors,
+        )
+        if result_card.get("schema_version") != "result_card.v1":
+            errors.append("result_card.schema_version must be result_card.v1")
+        if not isinstance(result_card.get("condition"), dict):
+            errors.append("result_card.condition must be an object")
+
     if not isinstance(sample.get("evidence"), list) or not sample.get("evidence"):
         errors.append("evidence must be a non-empty list")
     if not isinstance(sample.get("acquisition_path"), list) or not sample.get("acquisition_path"):
@@ -55,7 +70,12 @@ def validate_sample_contract(sample: dict[str, Any]) -> list[str]:
     if not isinstance(processing, dict):
         errors.append("processing must be an object")
     else:
-        _require_keys(processing, ("operations", "raw_value_preserved", "normalization"), "processing", errors)
+        _require_keys(
+            processing,
+            ("operations", "raw_value_preserved", "normalization", "raw_value", "parsed_value", "standardized_value", "transformations"),
+            "processing",
+            errors,
+        )
 
     verification = sample.get("verification")
     if not isinstance(verification, dict):

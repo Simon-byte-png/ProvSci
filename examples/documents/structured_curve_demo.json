@@ -1,0 +1,41 @@
+{
+  "doc_id": "doi:10.1234/provsci-curve-demo",
+  "title": "A structured scientific response curve example",
+  "year": 2024,
+  "license": "CC-BY-4.0",
+  "local_path": "raw/demo/structured-curve.json",
+  "metadata": {
+    "parser_version": "normalized-v0",
+    "domain": "scientific_quantitative_result_v1"
+  },
+  "figures": [
+    {
+      "id": "Figure 1",
+      "page": 3,
+      "label": "Figure 1",
+      "caption": "Measured yield over time",
+      "axes": {
+        "x": {"label": "time", "unit": "h"},
+        "y": {"label": "yield", "unit": "%"}
+      },
+      "series": [
+        {
+          "name": "Batch A",
+          "points": [
+            {"x": 0, "y": 62},
+            {"x": 2, "y": "82 ± 1"},
+            {"x": 4, "y": "87 ± 1"}
+          ]
+        },
+        {
+          "name": "Batch B",
+          "points": [
+            {"x": 0, "y": 58},
+            {"x": 2, "y": "74 ± 2"},
+            {"x": 4, "y": "79 ± 2"}
+          ]
+        }
+      ]
+    }
+  ]
+}

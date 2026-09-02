@@ -8,6 +8,7 @@ the project a useful local baseline for JSON, CSV, HTML, Markdown and text.
 from __future__ import annotations
 
 import csv
+from dataclasses import replace
 import html
 import json
 import re
@@ -15,7 +16,7 @@ import subprocess
 import zipfile
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 from xml.etree import ElementTree
 
 from .models import DocumentPackage, InputError
@@ -25,11 +26,51 @@ class AdapterError(InputError):
     """Raised when an input file cannot be normalized."""
 
 
-def load_document(path: str | Path, metadata: dict[str, Any] | None = None) -> DocumentPackage:
+@runtime_checkable
+class DocumentAdapter(Protocol):
+    """Replaceable parser contract for layout-aware scientific documents.
+
+    Docling, GROBID, TATR and Nougat integrations can implement this small
+    interface and return the same ``DocumentPackage`` consumed by the mining
+    and verifier stages.  The core package deliberately does not import any
+    of those optional heavy dependencies.
+    """
+
+    name: str
+
+    def supports(self, source: Path) -> bool:
+        """Return whether this adapter can parse the local source."""
+
+    def load(self, source: Path, metadata: dict[str, Any] | None = None) -> DocumentPackage:
+        """Parse source into the stable intermediate document package."""
+
+
+def load_document(
+    path: str | Path,
+    metadata: dict[str, Any] | None = None,
+    adapter: DocumentAdapter | None = None,
+) -> DocumentPackage:
     """Load one supported file and return the stable internal document form."""
     source = Path(path)
     if not source.exists():
         raise AdapterError(f"input file not found: {source}")
+    if adapter is not None:
+        try:
+            supported = adapter.supports(source)
+        except Exception as exc:  # pragma: no cover - third-party adapter boundary
+            raise AdapterError(f"adapter {getattr(adapter, 'name', type(adapter).__name__)} failed supports(): {exc}") from exc
+        if not supported:
+            raise AdapterError(f"adapter {getattr(adapter, 'name', type(adapter).__name__)} does not support {source.suffix or '<no suffix>'}")
+        try:
+            parsed = adapter.load(source, metadata)
+        except Exception as exc:  # pragma: no cover - third-party adapter boundary
+            raise AdapterError(f"adapter {getattr(adapter, 'name', type(adapter).__name__)} failed to parse {source}: {exc}") from exc
+        if isinstance(parsed, dict):
+            parsed = DocumentPackage.from_dict(parsed)
+        if not isinstance(parsed, DocumentPackage):
+            raise AdapterError("custom adapter must return DocumentPackage or a document-package dictionary")
+        adapter_name = str(getattr(adapter, "name", type(adapter).__name__))
+        return replace(parsed, metadata={**parsed.metadata, "adapter": adapter_name})
     suffix = source.suffix.lower()
     if suffix == ".json":
         raw = json.loads(source.read_text(encoding="utf-8"))
@@ -190,9 +231,12 @@ def _from_jats(source: Path, metadata: dict[str, Any] | None) -> DocumentPackage
         value = _clean_text(node)
         if id_type == "pmcid" and value and not (metadata or {}).get("doc_id"):
             base["doc_id"] = value if value.startswith("PMC") else f"PMC{value}"
-            break
-        if id_type == "doi" and value and not (metadata or {}).get("doc_id") and str(base.get("doc_id", "")).startswith("file:"):
-            base["doc_id"] = f"doi:{value}"
+        elif id_type == "doi" and value:
+            base["doi"] = value
+            if not (metadata or {}).get("doc_id") and str(base.get("doc_id", "")).startswith("file:"):
+                base["doc_id"] = f"doi:{value}"
+        elif id_type == "pmid" and value:
+            base["pmid"] = value
 
     year = _first_text(root, ("pub-date", "year")) or _first_text(root, ("year",))
     if year and year.isdigit() and not (metadata or {}).get("year"):
@@ -237,6 +281,22 @@ def _from_jats(source: Path, metadata: dict[str, Any] | None) -> DocumentPackage
             "section_path": section_path,
         })
 
+    supplements = []
+    for supplement in (node for node in root.iter() if _local_name(node.tag) == "supplementary-material"):
+        supplement_id = supplement.attrib.get("id") or f"supp{len(supplements) + 1}"
+        href = next((value for key, value in supplement.attrib.items() if key.rsplit("}", 1)[-1] == "href"), None)
+        text = _clean_text(supplement)
+        if not text and not href:
+            continue
+        supplements.append({
+            "id": supplement_id,
+            "label": _first_text(supplement, ("label",)),
+            "caption": _first_text(supplement, ("caption",)),
+            "href": href,
+            "text": text,
+            "section_path": _section_path(supplement, parent_map),
+        })
+
     tables = []
     for wrap in (node for node in root.iter() if _local_name(node.tag) == "table-wrap"):
         table_node = next((node for node in wrap.iter() if _local_name(node.tag) == "table"), None)
@@ -272,7 +332,12 @@ def _from_jats(source: Path, metadata: dict[str, Any] | None) -> DocumentPackage
         "paragraphs": paragraphs,
         "tables": tables,
         "figures": figures,
-        "metadata": {**(metadata or {}), "adapter": "jats_v0.1"},
+        "supplements": supplements,
+        # Keep identifiers recovered from the article header (DOI/PMID/PMCID)
+        # in metadata as well as in the DocumentPackage fields.  Source
+        # acquisition uses this metadata to build a manifest without forcing
+        # callers to re-parse the XML.
+        "metadata": {**base, **(metadata or {}), "adapter": "jats_v0.1"},
     })
 
 
@@ -408,12 +473,27 @@ def _from_pdf(source: Path, metadata: dict[str, Any] | None) -> DocumentPackage:
             "install a parser and normalize its output to DocumentPackage"
         ) from exc
     base = _base_metadata(source, metadata)
-    paragraphs = [
-        {"id": f"p{index}", "page": 0, "text": block.strip()}
-        for index, block in enumerate(re.split(r"\n\s*\n", result.stdout), 1)
-        if block.strip()
-    ]
-    return DocumentPackage.from_dict({**base, "paragraphs": paragraphs, "metadata": {**(metadata or {}), "adapter": "pdftotext_v0.1"}})
+    paragraphs = []
+    for page_number, page_text in enumerate(result.stdout.split("\f"), 1):
+        for block in re.split(r"\n\s*\n", page_text):
+            if block.strip():
+                paragraphs.append({
+                    "id": f"p{len(paragraphs) + 1}",
+                    "page": page_number,
+                    "text": block.strip(),
+                    "section_path": [],
+                })
+    return DocumentPackage.from_dict({
+        **base,
+        "paragraphs": paragraphs,
+        "metadata": {
+            **(metadata or {}),
+            "adapter": "pdftotext_v0.2",
+            "parser_version": "pdftotext",
+            "page_count": len(result.stdout.split("\f")),
+            "layout_preserved": True,
+        },
+    })
 
 
 def _from_xlsx(source: Path, metadata: dict[str, Any] | None) -> DocumentPackage:

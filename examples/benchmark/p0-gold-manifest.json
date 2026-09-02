@@ -1,0 +1,91 @@
+{
+  "name": "provsci-p0-scientific-quantitative-result-gold-v1",
+  "description": "人工核验的真实 CC-BY PMC/JATS 文献：通用科学带单位定量结果；当前样例包含生物医学论文，但不限制产品领域。",
+  "domain": "scientific_quantitative_result_v1",
+  "annotation_date": "2026-08-29",
+  "annotation_policy": "结果、证据定位、条件/单位和失败原因按 schemas/scientific_quantitative_result_profile.json 复核；表格数值 claim 额外记录 value、uncertainty、unit、metric 和 entity；关系语义不充分时保留在 Human Review。",
+  "documents": [
+    {
+      "path": "../real/PMC13272437.nxml",
+      "metadata": {
+        "domain": "scientific_quantitative_result_v1",
+        "doi": "10.3389/fonc.2026.1807785",
+        "pmid": "42318457",
+        "license": "CC-BY-4.0",
+        "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13272437/fullTextXML",
+        "license_source": "PMC OA record / article JATS permissions",
+        "retrieved_at": "2026-08-29"
+      },
+      "expected": {"candidates": 23, "gold": 23, "silver": 0},
+      "expected_claims": [
+        {"kind": "text_number", "paragraph_id": "p17", "value": "0.33", "unit": "U/ml", "metric": "IC50", "entity": "rMETase"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "7.1", "unit": "μM", "metric": "IC50", "entity": "ivermectin"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "25.7", "unit": "μM", "metric": "IC50", "entity": "doxorubicin"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "6.9", "unit": "μM", "metric": "IC50", "entity": "5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "10.4", "unit": "μM", "metric": "IC50", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "17.5", "unit": "nM", "metric": "IC50", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p17", "value": "4.1", "unit": "nM", "metric": "IC50", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.1", "unit": "%", "metric": "cell viability reduction", "entity": "rMETase"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "50.2", "unit": "%", "metric": "cell viability reduction", "entity": "ivermectin"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.3", "unit": "%", "metric": "cell viability reduction", "entity": "doxorubicin"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "48.1", "unit": "%", "metric": "cell viability reduction", "entity": "5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "57.5", "unit": "%", "metric": "cell viability reduction", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "48.2", "unit": "%", "metric": "cell viability reduction", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p19", "value": "56.4", "unit": "%", "metric": "cell viability reduction", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "7.8", "unit": "%", "metric": "cell viability", "entity": "ivermectin with rMETase"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "28.5", "unit": "%", "metric": "cell viability", "entity": "rMETase combined with 5-fluorouracil"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "20.8", "unit": "%", "metric": "cell viability", "entity": "cisplatinum"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "21.5", "unit": "%", "metric": "cell viability", "entity": "gemcitabine"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "15.5", "unit": "%", "metric": "cell viability", "entity": "paclitaxel"},
+        {"kind": "text_number", "paragraph_id": "p21", "value": "5.6", "unit": "%", "metric": "cell viability", "entity": "doxorubicin"},
+        {"kind": "relation", "paragraph_id": "p19", "value": "reduced", "subject": "Treatment with rMETase and each drug alone at its IC50 for 72 h", "object": "cell viability compared with untreated control cells"},
+        {"kind": "relation", "paragraph_id": "p23", "value": "higher", "subject": "The CI value for ivermectin combined with rMETase", "object": "those for 5-fluorouracil, cisplatinum, gemcitabine and paclitaxel, each combined with rMETase"},
+        {"kind": "relation", "paragraph_id": "p24", "value": "higher", "subject": "Ivermectin or doxorubicin combined with rMETase", "object": "5-fluorouracil, cisplatinum, gemcitabine or paclitaxel combined with rMETase"}
+      ]
+    },
+    {
+      "path": "../real/PMC8415024.nxml",
+      "metadata": {
+        "domain": "scientific_quantitative_result_v1",
+        "doi": "10.3389/fphar.2021.717529",
+        "pmid": "34483925",
+        "license": "CC-BY-4.0",
+        "source_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML",
+        "license_source": "PMC OA record / article JATS permissions",
+        "retrieved_at": "2026-08-29"
+      },
+      "expected": {"candidates": 29, "gold": 23, "silver": 6},
+      "expected_claims": [
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW480", "col": "IC50(μM) / 12 h", "condition": "12 h", "value": 16.17, "uncertainty": 0.76, "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW480", "col": "IC50(μM) / 24 h", "condition": "24 h", "value": 15.34, "uncertainty": 0.81, "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW480", "col": "IC50(μM) / 36 h", "condition": "36 h", "value": 12.11, "uncertainty": 0.97, "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW1116", "col": "IC50(μM) / 12 h", "condition": "12 h", "value": 7.60, "uncertainty": 0.62, "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW1116", "col": "IC50(μM) / 24 h", "condition": "24 h", "value": 6.27, "uncertainty": 0.70, "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "table", "table_id": "TABLE 1", "row": "SW1116", "col": "IC50(μM) / 36 h", "condition": "36 h", "value": 5.76, "uncertainty": 0.81, "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "16.17", "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "15.34", "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "12.11", "unit": "μM", "metric": "IC50", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "7.6", "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "6.27", "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p22", "value": "5.76", "unit": "μM", "metric": "IC50", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "9.48", "unit": "%", "metric": "apoptosis proportion", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "10.5", "unit": "%", "metric": "apoptosis proportion", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "19.87", "unit": "%", "metric": "apoptosis proportion", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "30.5", "unit": "%", "metric": "apoptosis proportion", "entity": "SW1116"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "4.65", "unit": "%", "metric": "apoptosis proportion", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p26", "value": "12.66", "unit": "%", "metric": "apoptosis proportion", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p37", "value": "5.31", "unit": "%", "metric": "cell-cycle proportion", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p37", "value": "32.4", "unit": "%", "metric": "cell-cycle proportion", "entity": "SW480"},
+        {"kind": "text_number", "paragraph_id": "p37", "value": "37.0", "unit": "%", "metric": "cell-cycle proportion", "entity": "SW1116"},
+        {"kind": "relation", "paragraph_id": "p22", "value": "decreased", "subject": "As shown in Figure 2, the cell viability of SW480 and SW1116 cells", "object": "dose-dependently by ivermectin treatment"},
+        {"kind": "relation", "paragraph_id": "p24", "value": "increased", "subject": "when the concentration of ivermectin was 10 μM, the cells became round, shrunk, and floated in the medium, and the concentration of ivermectin", "object": "to 20 μM, most of the cells shed and floated in the culture medium"},
+        {"kind": "relation", "paragraph_id": "p26", "value": "decreased", "subject": "To determine whether ivermectin", "object": "the cell viability and the cell morphology of colorectal cancer cells via inducing cell apoptosis, we cultured colorectal cancer cells SW480 and SW1116 cells with indicated concentrations of ivermectin for 6 h, and apoptosis was evaluated by flow cytometry using Annexin V-FITC/7-AAD co-staining"},
+        {"kind": "relation", "paragraph_id": "p28", "value": "increased", "subject": "As shown in Figure 5, ivermectin", "object": "Caspase 3/7 activity of SW480 and SW1116 cells in a dose-dependent manner"},
+        {"kind": "relation", "paragraph_id": "p30", "value": "increased", "subject": "As the concentration of ivermectin increased, the expression of the proapoptotic protein Bax", "object": "significantly, and the expression of the antiapoptotic protein Bcl-2 decreased"},
+        {"kind": "relation", "paragraph_id": "p33", "value": "increased", "subject": "Ivermectin", "object": "total intracellular ROS generation in SW1116 cells"},
+        {"kind": "relation", "paragraph_id": "p34", "value": "increased", "subject": "Ivermectin", "object": "mitochondrial ROS generation in SW1116 cells"},
+        {"kind": "relation", "paragraph_id": "p35", "value": "decreased", "subject": ", compared with the control group without ivermectin, the cell viability", "object": "after ivermectin treatment could be reversed by administration of NAC"}
+      ]
+    }
+  ]
+}

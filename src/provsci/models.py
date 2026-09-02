@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .profile import DEFAULT_DOMAIN
+
 
 class InputError(ValueError):
     """Raised when a document package or generated sample is malformed."""
@@ -20,6 +22,7 @@ class DocumentPackage:
     paragraphs: list[dict[str, Any]] = field(default_factory=list)
     tables: list[dict[str, Any]] = field(default_factory=list)
     figures: list[dict[str, Any]] = field(default_factory=list)
+    supplements: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -37,6 +40,7 @@ class DocumentPackage:
             paragraphs=list(raw.get("paragraphs", [])),
             tables=list(raw.get("tables", [])),
             figures=list(raw.get("figures", [])),
+            supplements=list(raw.get("supplements", [])),
             metadata=dict(raw.get("metadata", {})),
         )
 
@@ -58,6 +62,12 @@ class DocumentPackage:
                 return figure
         raise InputError(f"figure not found: {figure_id}")
 
+    def supplement(self, supplement_id: str) -> dict[str, Any]:
+        for supplement in self.supplements:
+            if str(supplement.get("id")) == supplement_id:
+                return supplement
+        raise InputError(f"supplement not found: {supplement_id}")
+
 
 @dataclass(frozen=True)
 class Candidate:
@@ -72,6 +82,46 @@ class Candidate:
     page_span: list[int]
 
     def to_sample(self, license_name: str, title: str, local_path: str) -> dict[str, Any]:
+        answer = dict(self.answer)
+        task_type = self.task_type
+        if task_type == "numeric_qa":
+            result_type = "measurement"
+        elif task_type == "relation":
+            result_type = "comparison_relation"
+        else:
+            result_type = "scientific_claim"
+        condition_text = answer.get("condition")
+        evidence_modality = str((self.evidence[0] if self.evidence else {}).get("modality", ""))
+        condition_source = answer.get("condition_source") or (
+            "column_header" if evidence_modality == "table" and condition_text
+            else "local_text" if condition_text
+            else "not_extracted"
+        )
+        result_card = {
+            "schema_version": "result_card.v1",
+            "domain": DEFAULT_DOMAIN,
+            "result_type": result_type,
+            "entity": answer.get("entity") or answer.get("subject") or self.subject,
+            "metric": answer.get("metric") or ("relation" if task_type == "relation" else None),
+            "value": answer.get("value"),
+            "unit": str(answer.get("unit", "")),
+            "display": answer.get("display", str(answer.get("value", ""))),
+            "condition": {
+                "text": condition_text,
+                "source": condition_source,
+                "status": "explicit" if condition_text else "not_extracted",
+                "fields": dict(answer.get("condition_fields") or {}),
+            },
+            "uncertainty": answer.get("uncertainty"),
+            "raw_value": answer.get("display", str(answer.get("value", ""))),
+            "normalized_value": {
+                "value": answer.get("value"),
+                "unit": str(answer.get("unit", "")),
+            },
+        }
+        if task_type == "relation":
+            result_card["subject"] = answer.get("subject")
+            result_card["object"] = answer.get("object")
         return {
             "id": self.candidate_id,
             "source": {
@@ -86,8 +136,9 @@ class Candidate:
                 "type": self.task_type,
                 "subject": self.subject,
                 "question": self.question,
-                "answer": self.answer,
+                "answer": answer,
             },
+            "result_card": result_card,
             "evidence": self.evidence,
             "acquisition_path": self.acquisition_path,
             "verification": {

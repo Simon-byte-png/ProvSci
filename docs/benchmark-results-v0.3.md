@@ -2,6 +2,12 @@
 
 Run date: 2026-08-21
 
+> This is a historical pre-P0 snapshot retained for provenance. It predates
+> the earlier biomedical sample manifest and the current four-paper
+> smoke results. Use [`p0-results-v1.md`](p0-results-v1.md) and
+> [`p2-ablation-v1.md`](p2-ablation-v1.md) for the current benchmark and
+> diagnostic numbers.
+
 ## Corpus
 
 - 4 local fixtures: JSON, CSV, HTML, and JATS.
@@ -30,7 +36,7 @@ On `PMC13272437` specifically:
 
 ## Interpretation and limits
 
-This is a reproducible engineering benchmark, not proof that ProvSci surpasses every prior scientific agent. The real article is one domain and one annotation pass. A publication-grade evaluation should add at least 100 held-out claims, multiple scientific domains, independent annotators, parser version records, and cost/latency measurements.
+This is a reproducible engineering benchmark, not proof that ProvSci surpasses every prior scientific agent. The current real articles are one biomedical sample domain under the generic quantitative-result profile and one annotation pass. A publication-grade evaluation should add at least 100 held-out claims, multiple scientific domains, independent annotators, parser version records, and cost/latency measurements.
 
 The useful result at this stage is architectural: provenance replay is necessary but not sufficient; section-aware routing plus metric/entity/role binding materially improves precision while preserving recall on the current real-paper test.
 
@@ -41,12 +47,12 @@ The separate `real-smoke-manifest.json` runs four CC-BY PMC/JATS articles withou
 | Document | Candidates | Gold | Silver / human review | Path replay |
 | --- | ---: | ---: | ---: | ---: |
 | `PMC13272437` | 23 | 23 | 0 | 1.0000 |
-| `PMC8415024` | 38 | 38 | 0 | 1.0000 |
+| `PMC8415024` | 29 | 23 | 6 | 1.0000 |
 | `PMC9857184` | 140 | 140 | 0 | 1.0000 |
 | `PMC2010468` | 0 | 0 | 0 | 1.0000 |
-| **Total** | **201** | **201** | **0** | **1.0000** |
+| **Total** | **192** | **186** | **6** | **1.0000** |
 
-The current smoke suite has no review items after the result-focused condition router and table-context fixes. The stricter human-review behavior remains covered by the JATS demo and adversarial tests; real-paper results without independent claim annotation should still be treated as pipeline health evidence, not proof of semantic precision.
+The current smoke suite retains six review items from semantically underspecified relation candidates in `PMC8415024`; the table row-label and caption-condition fixes improve entity/condition provenance for `PMC9857184`. Real-paper results without independent claim annotation should still be treated as pipeline health evidence, not proof of semantic precision.
 
 ## Reproduce
 

@@ -10,6 +10,7 @@ from typing import Any
 
 from .models import DocumentPackage, InputError
 from .values import NumberUnit, convert, extract_measurement_occurrences, extract_number_unit_occurrences, parse_measurement, parse_number_unit
+from .figures import figure_axis, point_value_for_path, resolve_figure_point
 
 
 class PathExecutionError(ValueError):
@@ -19,8 +20,10 @@ class PathExecutionError(ValueError):
 ALLOWED_ACTIONS = frozenset(
     {
         "extract_table_cell",
+        "extract_figure_point",
         "read_text_span",
         "read_figure_alt_text",
+        "read_supplement_text",
         "parse_number_unit",
         "parse_measurement",
         "extract_number_unit",
@@ -134,7 +137,12 @@ class PathExecutor:
                 return row[col]
             for row in rows:
                 label = next(
-                    (row.get(key) for key in ("Sample", "sample", "Cell line", "cell line", "cell_line", "Compound", "compound", "Name", "name", "id") if row.get(key) not in (None, "")),
+                    (row.get(key) for key in (
+                        "Sample", "sample", "Sample ID", "sample_id", "Cell line", "cell line", "cell_line",
+                        "Compound", "compound", "Batch", "batch", "Group", "group", "Specimen", "specimen",
+                        "Material", "material", "Treatment", "treatment", "Condition", "condition",
+                        "Name", "name", "id",
+                    ) if row.get(key) not in (None, "")),
                     None,
                 )
                 if str(label) == row_key:
@@ -150,6 +158,20 @@ class PathExecutor:
         if action == "read_figure_alt_text":
             figure = self.document.figure(str(args["figure_id"]))
             return str(figure.get("alt_text", ""))
+        if action == "extract_figure_point":
+            figure = self.document.figure(str(args["figure_id"]))
+            point = resolve_figure_point(
+                figure,
+                series_index=int(args.get("series_index", 0)),
+                point_index=int(args["point_index"]),
+            )
+            axis = str(args.get("value_axis", "y")).casefold()
+            if axis not in {"x", "y"}:
+                raise InputError("figure value_axis must be x or y")
+            return point_value_for_path(point, figure_axis(figure, axis))
+        if action == "read_supplement_text":
+            supplement = self.document.supplement(str(args["supplement_id"]))
+            return str(supplement.get("text", ""))
         if action == "parse_number_unit":
             source = args.get("value")
             if "value_from" in args:
