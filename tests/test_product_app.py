@@ -45,9 +45,10 @@ class ProductAppTests(unittest.TestCase):
             self.assertEqual(json.load(response)["service"], "provsci-product-app")
         with urllib.request.urlopen(f"{self.base_url}/product_workspace.html", timeout=10) as response:
             page = response.read().decode("utf-8")
-        self.assertIn("科研数据工作台", page)
+        self.assertIn("论文数据整理助手", page)
+        self.assertIn("把论文里的数据，整理成能直接使用的表格", page)
         self.assertIn("/api/analyze", page)
-        self.assertIn("结构化结果", page)
+        self.assertIn("整理好的数据表", page)
 
     def test_real_jats_upload_returns_auditable_results(self) -> None:
         content = (ROOT / "examples" / "real" / "PMC8415024.nxml").read_bytes()

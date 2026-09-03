@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ProvSci 科研数据工作台</title>
+<title>ProvSci 论文数据整理助手</title>
 <style>
 :root {
   --navy: #132b3a;
@@ -26,10 +26,10 @@
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; color: var(--ink); background: var(--canvas); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { margin: 0; overflow-x: hidden; color: var(--ink); background: var(--canvas); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
-.app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+.app { min-height: 100vh; }
 .sidebar { display: flex; flex-direction: column; gap: 22px; padding: 22px 15px 18px; color: #e8f5f4; background: var(--navy); }
 .brand { display: flex; align-items: baseline; gap: 8px; padding: 0 10px; font-size: 21px; letter-spacing: .01em; }
 .brand small { color: #99d3cd; font-size: 10px; letter-spacing: .14em; }
@@ -46,7 +46,7 @@ button { cursor: pointer; }
 .recent strong { font-size: 12px; font-weight: 500; }
 .recent span { color: #8db4b6; font-size: 11px; }
 .sidebar-foot { margin-top: auto; padding: 13px 10px 0; border-top: 1px solid #2d5360; color: #8caeb1; font-size: 11px; }
-.main { min-width: 0; padding: 20px 28px 34px; }
+.main { width: min(1180px, calc(100% - 40px)); min-width: 0; margin: 0 auto; padding: 34px 0 52px; }
 .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
 .kicker { color: var(--teal); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
 .topbar h1 { margin: 4px 0 0; font-size: 25px; font-weight: 550; letter-spacing: 0; }
@@ -55,8 +55,9 @@ button { cursor: pointer; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
 .icon-button { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: var(--surface); }
 .icon-button:hover { color: var(--teal); border-color: #91c9c4; }
-.upload-band { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(290px, .7fr); gap: 18px; align-items: stretch; }
-.dropzone { display: grid; place-items: center; min-height: 218px; padding: 25px; border: 1px dashed #9cb9bf; border-radius: 9px; background: var(--surface); text-align: center; transition: border-color .15s, background .15s; }
+.upload-band { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); gap: 18px; align-items: stretch; }
+.upload-band > * { min-width: 0; }
+.dropzone { display: grid; place-items: center; min-height: 285px; padding: 30px; border: 2px dashed #9cb9bf; border-radius: 12px; background: var(--surface); text-align: center; transition: border-color .15s, background .15s; }
 .dropzone.dragover { border-color: var(--teal); background: var(--teal-soft); }
 .dropzone-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 10px; border-radius: 50%; color: var(--teal); background: var(--teal-soft); font-size: 23px; }
 .dropzone h2 { margin: 0; font-size: 17px; font-weight: 550; }
@@ -67,7 +68,7 @@ button { cursor: pointer; }
 .primary-button:hover { background: #066e69; }
 .secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
 .secondary-button:hover { border-color: #8cbfbd; color: var(--teal); }
-.upload-info { display: flex; flex-direction: column; justify-content: space-between; padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.upload-info { display: flex; flex-direction: column; justify-content: space-between; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .section-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .section-heading h2 { margin: 0; font-size: 15px; font-weight: 550; }
 .section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
@@ -90,7 +91,7 @@ button { cursor: pointer; }
 .progress-value { width: 0; height: 100%; background: var(--teal); transition: width .3s ease; }
 .progress-detail { margin-top: 6px; color: var(--teal); font-size: 11px; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
-.stat { padding: 14px 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.stat { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 .stat strong { display: block; font-size: 23px; font-weight: 550; line-height: 1.1; }
 .stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
 .stat.teal strong { color: var(--teal); }
@@ -120,7 +121,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
 .quality-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .locator { color: var(--teal); font-size: 11px; }
 .empty-row { padding: 32px 12px; color: var(--muted); text-align: center; }
-.detail-panel { position: sticky; top: 18px; display: grid; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow); }
+.detail-panel { position: sticky; top: 18px; display: grid; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
 .results-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; margin-top: 18px; }
 .results-layout .results-panel { min-width: 0; margin-top: 0; }
 .detail-title { display: flex; justify-content: space-between; gap: 9px; align-items: flex-start; }
@@ -156,6 +157,39 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
 .license-row:last-child, .metric-row:last-child { border-bottom: 0; }
 .license-row strong, .metric-row strong { color: var(--ink); font-weight: 550; text-align: right; }
 .footer-note { margin: 17px 2px 0; color: var(--muted); font-size: 11px; }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 64px; padding: 0 max(20px, calc((100% - 1180px) / 2)); border-bottom: 1px solid var(--line); background: var(--surface); }
+.site-brand { display: flex; align-items: center; gap: 12px; color: var(--ink); }
+.site-brand strong { font-size: 21px; font-weight: 650; }
+.site-brand span { padding-left: 12px; border-left: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.site-actions { display: flex; align-items: center; gap: 14px; }
+.privacy-note { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+.privacy-note i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.header-reset { border: 0; color: var(--teal); background: transparent; }
+.hero { max-width: 760px; margin: 0 auto 28px; text-align: center; }
+.hero-label { color: var(--teal); font-size: 12px; font-weight: 650; }
+.hero h1 { margin: 8px 0 10px; overflow-wrap: anywhere; color: var(--ink); font-size: clamp(28px, 4vw, 42px); font-weight: 650; line-height: 1.2; letter-spacing: -.02em; }
+.hero p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 720px; margin: 24px auto 0; padding: 0; list-style: none; text-align: left; }
+.steps li { display: flex; align-items: center; gap: 9px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink); font-size: 12px; }
+.steps b, .step-label { display: inline-grid; place-items: center; flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; color: var(--teal); background: var(--teal-soft); font-size: 11px; }
+.step-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.step-heading h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.format-note { display: block; max-width: 100%; margin-top: 12px; overflow-wrap: anywhere; color: var(--muted); font-size: 11px; }
+.auto-list { display: grid; gap: 9px; margin: 18px 0; padding: 0; list-style: none; color: var(--ink); font-size: 12px; }
+.auto-list li { display: flex; align-items: center; gap: 8px; }
+.auto-list i { color: var(--green); font-style: normal; }
+.plain-note { margin: 13px 0 0; padding: 10px 12px; border-radius: 7px; color: var(--muted); background: var(--soft); font-size: 11px; }
+.result-guide { display: flex; align-items: center; gap: 10px; margin-top: 24px; }
+.result-guide h2 { margin: 0; font-size: 19px; font-weight: 600; }
+.result-guide p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+.quality-help { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 18px 0; padding: 10px 12px; border-radius: 7px; color: var(--muted); background: var(--soft); font-size: 11px; }
+.quality-help strong { color: var(--ink); }
+.more-panel { margin-top: 18px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.more-panel summary { cursor: pointer; padding: 15px 18px; color: var(--ink); font-weight: 550; }
+.more-content { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 18px 18px; }
+.more-content h3 { margin: 0 0 8px; font-size: 12px; }
+.primary-button:disabled { cursor: not-allowed; opacity: .55; }
+[hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media (max-width: 1160px) {
   .app { grid-template-columns: 200px minmax(0, 1fr); }
@@ -172,7 +206,10 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   .nav button { justify-content: center; padding: 8px 5px; font-size: 11px; }
   .nav-icon { width: auto; }
   .side-label, .recent, .sidebar-foot { display: none; }
-  .main { padding: 17px 14px 27px; }
+  .site-header { padding-inline: 16px; }
+  .site-brand span, .privacy-note { display: none; }
+  .main { width: min(calc(100% - 28px), 1180px); padding: 24px 0 34px; }
+  .steps { grid-template-columns: 1fr; }
   .results-layout { grid-template-columns: 1fr; }
   .detail-panel { position: static; }
   .lower-band { grid-template-columns: 1fr; }
@@ -187,117 +224,116 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   .search { min-width: 0; flex: 1; }
   .stage-list { grid-template-columns: 1fr 1fr; }
   .stage:last-child { grid-column: span 2; }
+  .more-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 <div class="app" id="app">
-  <aside class="sidebar">
-    <div class="brand">ProvSci <small>DATA WORKSPACE</small></div>
-    <button class="new-analysis" type="button" id="new-analysis"><span aria-hidden="true">＋</span> 新建分析</button>
-    <nav class="nav" aria-label="主导航">
-      <button class="active" type="button"><span class="nav-icon" aria-hidden="true">▦</span>分析工作台</button>
-      <button type="button"><span class="nav-icon" aria-hidden="true">◷</span>运行记录</button>
-      <button type="button"><span class="nav-icon" aria-hidden="true">⌘</span>数据字典</button>
-      <button type="button"><span class="nav-icon" aria-hidden="true">✓</span>质量规则</button>
-    </nav>
-    <div>
-      <div class="side-label">最近运行</div>
-      <div class="recent">
-        <button type="button"><strong>PMC8415024 · IC50</strong><span>今天 14:53 · 6 条结果</span></button>
-        <button type="button"><strong>通用定量结果示例</strong><span>昨天 18:20 · 12 条结果</span></button>
-      </div>
-    </div>
-    <div class="sidebar-foot">本地工作区 · v0.3<br>结果默认保存在本机</div>
-  </aside>
+  <header class="site-header">
+    <div class="site-brand"><strong>ProvSci</strong><span>论文数据整理助手</span></div>
+    <div class="site-actions"><span class="privacy-note"><i></i>文件只在这台电脑上处理</span><button class="header-reset" type="button" id="new-analysis">重新开始</button></div>
+  </header>
   <main class="main">
-    <header class="topbar">
-      <div><div class="kicker">Scientific Data Workspace</div><h1>科研数据工作台</h1></div>
-      <div class="top-actions"><span class="local-state"><i class="status-dot"></i>本地处理模式</span><button class="icon-button" type="button" id="help-button" aria-label="查看当前模式">?</button></div>
-    </header>
+    <section class="hero">
+      <div class="hero-label">从文件到表格，只需三步</div>
+      <h1>把论文里的数据，整理成能直接使用的表格</h1>
+      <p>上传论文或实验文件，系统会自动寻找数值、单位和实验条件，并把每条结果和原文对应起来。</p>
+      <ol class="steps"><li><b>1</b>选择一个文件</li><li><b>2</b>等待系统整理</li><li><b>3</b>检查并下载表格</li></ol>
+    </section>
 
     <section class="upload-band" id="upload-section">
       <div class="dropzone" id="dropzone">
         <div>
+          <div class="step-heading"><span class="step-label">1</span><h2>添加文件</h2></div>
           <div class="dropzone-icon" aria-hidden="true">↑</div>
-          <h2>把论文或实验文件放到这里</h2>
-          <p>支持 XML / JATS、JSON、CSV、TXT、Markdown、HTML、XLSX、PDF</p>
-          <div class="upload-actions"><button class="primary-button" type="button" id="choose-file">选择文件</button><button class="secondary-button" type="button" id="load-demo">载入演示论文</button></div>
+          <h2>把文件拖到这里</h2>
+          <p>也可以点击按钮，从电脑中选择文件</p>
+          <div class="upload-actions"><button class="primary-button" type="button" id="choose-file">选择本地文件</button><button class="secondary-button" type="button" id="load-demo">使用示例体验</button></div>
+          <small class="format-note">支持常见论文、表格和文本文件，单个文件不超过 100 MB</small>
           <input class="sr-only" id="file-input" type="file" accept=".xml,.nxml,.json,.csv,.tsv,.txt,.md,.html,.htm,.xlsx,.pdf">
         </div>
       </div>
       <div class="upload-info">
         <div>
-          <div class="section-heading"><div><h2>当前任务</h2><p id="task-state">等待输入文件</p></div><span class="quality gold" id="task-badge"><i class="quality-dot"></i>就绪</span></div>
+          <div class="step-heading"><span class="step-label">2</span><h2>开始整理</h2></div>
+          <div class="section-heading"><div><h2>已选文件</h2><p id="task-state">还没有选择文件</p></div><span class="quality review" id="task-badge"><i class="quality-dot"></i>等待选择</span></div>
           <div class="file-row" id="file-row" hidden><span class="file-mark" id="file-mark">XML</span><div class="file-copy"><strong id="file-name">PMC8415024.nxml</strong><span id="file-meta">84 KB · 已载入</span></div><button class="file-remove" type="button" id="remove-file" aria-label="移除文件">×</button></div>
+          <ul class="auto-list"><li><i>✓</i>自动寻找结果数值和单位</li><li><i>✓</i>保留实验对象和条件</li><li><i>✓</i>把结果对应到原文位置</li><li><i>✓</i>再次检查结果是否一致</li></ul>
         </div>
-        <div class="config"><label class="config-label" for="profile">分析场景</label><div class="config-line"><select id="profile"><option>通用科学定量结果</option><option>生物医学细胞活性</option><option>材料性能实验</option></select></div><button class="primary-button run-button" type="button" id="run-button">开始分析</button><div class="progress" id="progress"><div class="progress-head"><span id="progress-label">准备中</span><span id="progress-percent">0%</span></div><div class="progress-track"><div class="progress-value" id="progress-value"></div></div><div class="progress-detail" id="progress-detail">等待任务</div></div></div>
+        <div class="config"><button class="primary-button run-button" type="button" id="run-button" disabled>开始整理数据</button><div class="progress" id="progress"><div class="progress-head"><span id="progress-label">准备中</span><span id="progress-percent">0%</span></div><div class="progress-track"><div class="progress-value" id="progress-value"></div></div><div class="progress-detail" id="progress-detail">等待开始</div></div><p class="plain-note">不需要设置专业参数，系统会自动按通用方式处理。</p></div>
       </div>
     </section>
 
-    <section class="stats" aria-label="结果概览">
-      <div class="stat teal"><strong id="stat-total">6</strong><span>已识别结果</span></div>
-      <div class="stat green"><strong id="stat-gold">6</strong><span>Gold · 验证通过</span></div>
-      <div class="stat amber"><strong id="stat-review">0</strong><span>待人工复核</span></div>
-      <div class="stat"><strong id="stat-coverage">100%</strong><span>证据覆盖率</span></div>
-    </section>
-
-    <div class="results-layout">
-      <section class="results-panel" id="results-section">
-        <div class="results-head"><div class="section-heading"><div><h2>结构化结果</h2><p>每一行都可以回到原文证据和处理路径</p></div></div><div class="table-tools"><label class="sr-only" for="search">搜索结果</label><input class="search" id="search" type="search" placeholder="搜索对象、指标或条件"><select class="filter" id="quality-filter" aria-label="按质量筛选"><option value="all">全部质量</option><option value="gold">Gold</option><option value="review">人工复核</option></select><button class="secondary-button" type="button" id="export-button">导出 CSV</button></div></div>
-        <div class="tabs" role="tablist"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="table">数据表格</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="trace">处理轨迹</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="quality">质量概览</button></div>
-        <div class="table-wrap" id="table-view"><table><thead><tr><th>研究对象</th><th>指标</th><th>结果值</th><th>单位</th><th>实验条件</th><th>证据位置</th><th>质量</th></tr></thead><tbody id="results-body"></tbody></table><div class="empty-row" id="empty-row" hidden>没有匹配的结果</div></div>
-        <div class="table-wrap" id="trace-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>本次运行轨迹</h2><p>从文件进入到结果落库的阶段状态</p></div></div><div class="stage-list" id="trace-stages"><div class="stage done"><span>01</span><strong>读取文件</strong></div><div class="stage done"><span>02</span><strong>结构化适配</strong></div><div class="stage done"><span>03</span><strong>候选挖掘</strong></div><div class="stage done"><span>04</span><strong>证据与路径</strong></div><div class="stage done"><span>05</span><strong>verifier 重算</strong></div></div></div></div>
-        <div class="table-wrap" id="quality-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>质量门禁</h2><p>当前运行的可审计性检查</p></div></div><div class="metric-row"><span>Evidence coverage</span><strong id="quality-evidence">1.0000</strong></div><div class="metric-row"><span>Path reproducibility</span><strong id="quality-path">1.0000</strong></div><div class="metric-row"><span>Condition match rate</span><strong id="quality-condition">1.0000</strong></div><div class="metric-row"><span>Source license</span><strong>CC-BY-4.0 · 已确认</strong></div></div></div>
+    <div id="result-area" hidden>
+      <div class="result-guide"><span class="step-label">3</span><div><h2>检查并下载结果</h2><p>先看概览，再点击任意一行查看它来自哪里。</p></div></div>
+      <section class="stats" aria-label="结果概览">
+        <div class="stat teal"><strong id="stat-total">0</strong><span>找到的数据</span></div>
+        <div class="stat green"><strong id="stat-gold">0</strong><span>可直接使用</span></div>
+        <div class="stat amber"><strong id="stat-review">0</strong><span>建议人工检查</span></div>
+        <div class="stat"><strong id="stat-coverage">0%</strong><span>可直接使用比例</span></div>
       </section>
 
-      <aside class="detail-panel" id="detail-panel" aria-live="polite">
-        <div class="detail-title"><div><h2 id="detail-heading">SW480 · IC50</h2><p id="detail-subheading">当前选中结果 · TABLE 1</p></div><button class="close-detail" type="button" id="close-detail" aria-label="关闭详情">×</button></div>
-        <div class="detail-value"><strong id="detail-value">15.34 ± 0.81</strong><span id="detail-unit">μM · 24 h</span></div>
-        <div class="field-grid"><div class="field"><label>entity</label><div id="field-entity">SW480</div></div><div class="field"><label>metric</label><div id="field-metric">IC50</div></div><div class="field"><label>result_type</label><div>measurement</div></div><div class="field"><label>condition</label><div id="field-condition">24 h · explicit</div></div></div>
-        <div class="detail-section"><h3>Evidence locator</h3><p class="quote" id="detail-quote">TABLE 1 → row SW480 → col IC50(μM) / 24 h\n原文：15.34 ± 0.81</p><button class="secondary-button" style="margin-top:9px" type="button" id="source-button">打开来源信息</button></div>
-        <div class="detail-section"><h3>Acquisition path</h3><div class="path-list" id="detail-path"></div></div>
-        <div class="verify"><span>verifier replay</span><strong id="detail-verify">PASS · 证据一致</strong></div>
-      </aside>
-    </div>
+      <div class="results-layout">
+        <section class="results-panel" id="results-section">
+          <div class="results-head"><div class="section-heading"><div><h2>整理好的数据表</h2><p>点击一行，可以查看原文依据</p></div></div><div class="table-tools"><label class="sr-only" for="search">搜索结果</label><input class="search" id="search" type="search" placeholder="搜索对象、指标或条件"><select class="filter" id="quality-filter" aria-label="按结果状态筛选"><option value="all">查看全部</option><option value="gold">可直接使用</option><option value="review">建议人工检查</option></select><button class="secondary-button" type="button" id="export-button">下载表格（CSV）</button></div></div>
+          <div class="quality-help"><span><strong>可直接使用：</strong>系统重新核对后与原文一致</span><span><strong>建议检查：</strong>信息不够完整，暂时不自动采用</span></div>
+          <div class="tabs" role="tablist"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="table">结果表格</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="trace">整理过程</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="quality">检查情况</button></div>
+          <div class="table-wrap" id="table-view"><table><thead><tr><th>对象</th><th>测量指标</th><th>结果</th><th>单位</th><th>实验条件</th><th>来自原文</th><th>状态</th></tr></thead><tbody id="results-body"></tbody></table><div class="empty-row" id="empty-row" hidden>没有符合条件的结果</div></div>
+          <div class="table-wrap" id="trace-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>系统做了什么</h2><p id="run-summary">本次整理已完成</p></div></div><div class="stage-list" id="trace-stages"><div class="stage done"><span>第 1 步</span><strong>读取文件</strong></div><div class="stage done"><span>第 2 步</span><strong>识别内容</strong></div><div class="stage done"><span>第 3 步</span><strong>查找数据</strong></div><div class="stage done"><span>第 4 步</span><strong>对应原文</strong></div><div class="stage done"><span>第 5 步</span><strong>再次核对</strong></div></div></div></div>
+          <div class="table-wrap" id="quality-view" hidden><div class="lower-panel" style="margin:0"><div class="section-heading"><div><h2>这批结果检查得怎么样</h2><p>数值越接近 100%，表示信息越完整</p></div></div><div class="metric-row"><span>有原文依据的结果</span><strong id="quality-evidence">100%</strong></div><div class="metric-row"><span>重新核对成功的结果</span><strong id="quality-path">100%</strong></div><div class="metric-row"><span>实验条件完整的结果</span><strong id="quality-condition">100%</strong></div><div class="metric-row"><span>文件使用许可</span><strong id="source-license">已确认</strong></div></div></div>
+        </section>
 
-    <section class="lower-band">
-      <div class="lower-panel"><div class="section-heading"><div><h2>处理阶段</h2><p id="run-summary">本次运行已完成</p></div><span class="quality gold"><i class="quality-dot"></i>已完成</span></div><div class="stage-list"><div class="stage done"><span>01</span><strong>读取文件</strong></div><div class="stage done"><span>02</span><strong>结构化适配</strong></div><div class="stage done"><span>03</span><strong>候选挖掘</strong></div><div class="stage done"><span>04</span><strong>证据与路径</strong></div><div class="stage done"><span>05</span><strong>verifier 重算</strong></div></div></div>
-      <div class="lower-panel"><div class="section-heading"><div><h2>来源与许可</h2><p>结果可追溯到原始文件</p></div></div><div class="license-row"><span>文献</span><strong id="source-doc">PMC8415024</strong></div><div class="license-row"><span>来源</span><strong>Europe PMC / JATS</strong></div><div class="license-row"><span>许可证</span><strong style="color:var(--green)">CC-BY-4.0 · 已确认</strong></div><div class="license-row"><span>文件指纹</span><strong id="source-hash">sha256: 0fa00f13…e521b0</strong></div></div>
-    </section>
-    <p class="footer-note">当前为本地产品原型：演示论文使用已验证的真实结果；上传 JSON/CSV/TXT 可在浏览器中预览解析，接入后端后可运行完整 ProvSci pipeline。</p>
+        <aside class="detail-panel" id="detail-panel" aria-live="polite">
+          <div class="detail-title"><div><h2 id="detail-heading">结果详情</h2><p id="detail-subheading">点击左侧任意一行查看</p></div></div>
+          <div class="detail-value"><strong id="detail-value">—</strong><span id="detail-unit">—</span></div>
+          <div class="field-grid"><div class="field"><label>实验对象</label><div id="field-entity">—</div></div><div class="field"><label>测量指标</label><div id="field-metric">—</div></div><div class="field"><label>数据类型</label><div>测量结果</div></div><div class="field"><label>实验条件</label><div id="field-condition">—</div></div></div>
+          <div class="detail-section"><h3>原文依据</h3><p class="quote" id="detail-quote">—</p></div>
+          <div class="detail-section"><h3>这条数据是怎么得到的</h3><div class="path-list" id="detail-path"></div></div>
+          <div class="verify"><span>系统检查</span><strong id="detail-verify">等待结果</strong></div>
+        </aside>
+      </div>
+
+      <details class="more-panel"><summary>查看文件记录和技术信息</summary><div class="more-content"><div><h3>本次文件</h3><div class="license-row"><span>文件编号</span><strong id="source-doc">—</strong></div><div class="license-row"><span>文件指纹</span><strong id="source-hash">整理后生成</strong></div></div><div><h3>为什么要保留这些信息</h3><p class="plain-note">它们可以帮助使用者确认数据来自哪一个文件，并检查文件是否被修改过。普通使用时可以忽略。</p></div></div></details>
+      <p class="footer-note">系统会把能够核对的结果标为“可直接使用”；信息不完整的结果会标为“建议人工检查”，不会混在一起。</p>
+    </div>
   </main>
 </div>
 <script>
 (() => {
   const DEMO_ROWS = [
-    {id:'sw480-12', entity:'SW480', metric:'IC50', value:'16.17 ± 0.76', number:16.17, uncertainty:.76, unit:'μM', condition:'12 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 12 h', quality:'gold', quote:'16.17 ± 0.76', path:[['extract_table_cell','TABLE 1 / SW480 / 12 h'],['parse_measurement','16.17 ± 0.76 μM']]},
-    {id:'sw480-24', entity:'SW480', metric:'IC50', value:'15.34 ± 0.81', number:15.34, uncertainty:.81, unit:'μM', condition:'24 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 24 h', quality:'gold', quote:'15.34 ± 0.81', path:[['extract_table_cell','TABLE 1 / SW480 / 24 h'],['parse_measurement','15.34 ± 0.81 μM']]},
-    {id:'sw480-36', entity:'SW480', metric:'IC50', value:'12.11 ± 0.97', number:12.11, uncertainty:.97, unit:'μM', condition:'36 h', locator:'TABLE 1 · row SW480 · col IC50(μM) / 36 h', quality:'gold', quote:'12.11 ± 0.97', path:[['extract_table_cell','TABLE 1 / SW480 / 36 h'],['parse_measurement','12.11 ± 0.97 μM']]},
-    {id:'sw1116-12', entity:'SW1116', metric:'IC50', value:'7.60 ± 0.62', number:7.6, uncertainty:.62, unit:'μM', condition:'12 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 12 h', quality:'gold', quote:'7.60 ± 0.62', path:[['extract_table_cell','TABLE 1 / SW1116 / 12 h'],['parse_measurement','7.60 ± 0.62 μM']]},
-    {id:'sw1116-24', entity:'SW1116', metric:'IC50', value:'6.27 ± 0.70', number:6.27, uncertainty:.7, unit:'μM', condition:'24 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 24 h', quality:'gold', quote:'6.27 ± 0.70', path:[['extract_table_cell','TABLE 1 / SW1116 / 24 h'],['parse_measurement','6.27 ± 0.70 μM']]},
-    {id:'sw1116-36', entity:'SW1116', metric:'IC50', value:'5.76 ± 0.81', number:5.76, uncertainty:.81, unit:'μM', condition:'36 h', locator:'TABLE 1 · row SW1116 · col IC50(μM) / 36 h', quality:'gold', quote:'5.76 ± 0.81', path:[['extract_table_cell','TABLE 1 / SW1116 / 36 h'],['parse_measurement','5.76 ± 0.81 μM']]}
+    {id:'sw480-12', entity:'SW480', metric:'IC50', value:'16.17 ± 0.76', number:16.17, uncertainty:.76, unit:'μM', condition:'12 h', locator:'表 1 · SW480 行 · IC50(μM) / 12 h 列', quality:'gold', quote:'16.17 ± 0.76', path:[['extract_table_cell','表 1 / SW480 / 12 h'],['parse_measurement','16.17 ± 0.76 μM']]},
+    {id:'sw480-24', entity:'SW480', metric:'IC50', value:'15.34 ± 0.81', number:15.34, uncertainty:.81, unit:'μM', condition:'24 h', locator:'表 1 · SW480 行 · IC50(μM) / 24 h 列', quality:'gold', quote:'15.34 ± 0.81', path:[['extract_table_cell','表 1 / SW480 / 24 h'],['parse_measurement','15.34 ± 0.81 μM']]},
+    {id:'sw480-36', entity:'SW480', metric:'IC50', value:'12.11 ± 0.97', number:12.11, uncertainty:.97, unit:'μM', condition:'36 h', locator:'表 1 · SW480 行 · IC50(μM) / 36 h 列', quality:'gold', quote:'12.11 ± 0.97', path:[['extract_table_cell','表 1 / SW480 / 36 h'],['parse_measurement','12.11 ± 0.97 μM']]},
+    {id:'sw1116-12', entity:'SW1116', metric:'IC50', value:'7.60 ± 0.62', number:7.6, uncertainty:.62, unit:'μM', condition:'12 h', locator:'表 1 · SW1116 行 · IC50(μM) / 12 h 列', quality:'gold', quote:'7.60 ± 0.62', path:[['extract_table_cell','表 1 / SW1116 / 12 h'],['parse_measurement','7.60 ± 0.62 μM']]},
+    {id:'sw1116-24', entity:'SW1116', metric:'IC50', value:'6.27 ± 0.70', number:6.27, uncertainty:.7, unit:'μM', condition:'24 h', locator:'表 1 · SW1116 行 · IC50(μM) / 24 h 列', quality:'gold', quote:'6.27 ± 0.70', path:[['extract_table_cell','表 1 / SW1116 / 24 h'],['parse_measurement','6.27 ± 0.70 μM']]},
+    {id:'sw1116-36', entity:'SW1116', metric:'IC50', value:'5.76 ± 0.81', number:5.76, uncertainty:.81, unit:'μM', condition:'36 h', locator:'表 1 · SW1116 行 · IC50(μM) / 36 h 列', quality:'gold', quote:'5.76 ± 0.81', path:[['extract_table_cell','表 1 / SW1116 / 36 h'],['parse_measurement','5.76 ± 0.81 μM']]}
   ];
-  const state = {rows: DEMO_ROWS.slice(), selected: 'sw480-24', file: {name:'PMC8415024.nxml', size:'84 KB', type:'XML'}, upload:null, running:false};
+  const state = {rows: [], selected: null, file: null, upload:null, running:false};
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  const plainLocator = value => String(value || '原文位置').replace(/TABLE\s*/gi, '表 ').replace(/\brow\s+/gi, '行 ').replace(/\bcol\s+/gi, '列 ');
 
   function setFile(file) {
     state.file = file;
     $('file-row').hidden = false;
     $('file-name').textContent = file.name;
     $('file-meta').textContent = `${file.size || '本地文件'} · 已载入`;
-    $('file-mark').textContent = (file.name.split('.').pop() || 'FILE').slice(0,4).toUpperCase();
-    $('task-state').textContent = '文件已载入，可开始分析';
-    $('task-badge').innerHTML = '<i class="quality-dot"></i>待运行';
+    $('file-mark').textContent = (file.name.split('.').pop() || '文件').slice(0,4).toUpperCase();
+    $('task-state').textContent = '文件已选好，可以开始整理';
+    $('task-badge').innerHTML = '<i class="quality-dot"></i>可以开始';
     $('task-badge').className = 'quality review';
+    $('run-button').disabled = false;
   }
   function resetFile() {
-    state.file = null;
+    state.file = null; state.upload = null; state.rows = []; state.selected = null; state.running = false;
     $('file-row').hidden = true;
-    $('task-state').textContent = '等待输入文件';
-    $('task-badge').innerHTML = '<i class="quality-dot"></i>就绪';
-    $('task-badge').className = 'quality gold';
+    $('task-state').textContent = '还没有选择文件';
+    $('task-badge').innerHTML = '<i class="quality-dot"></i>等待选择';
+    $('task-badge').className = 'quality review';
+    $('run-button').disabled = true; $('run-button').textContent = '开始整理数据';
+    $('progress').classList.remove('visible'); $('progress-percent').textContent = '0%'; $('progress-value').style.width = '0';
+    $('result-area').hidden = true;
   }
   function parseCSV(text) {
     const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -314,7 +350,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
       const value = cells[vi ?? 2] || '';
       const match = value.match(/([-+]?\d+(?:\.\d+)?)\s*(?:±|\+\/-)\s*(\d+(?:\.\d+)?)/);
       const number = Number.parseFloat(value);
-      return {id:`upload-${index}`, entity:cells[ei ?? 0] || '未命名对象', metric:cells[mi ?? 1] || 'measurement', value, number:Number.isFinite(number) ? number : (match ? Number(match[1]) : 0), uncertainty:match ? Number(match[2]) : null, unit:cells[ui ?? 3] || '—', condition:cells[ci ?? 4] || '未标注', locator:'上传文件 · 待生成定位', quality:'review', quote:value, path:[['read_uploaded_file','浏览器已读取文件'],['await_pipeline','等待后端生成证据路径']]};
+      return {id:`upload-${index}`, entity:cells[ei ?? 0] || '未命名对象', metric:cells[mi ?? 1] || '测量值', value, number:Number.isFinite(number) ? number : (match ? Number(match[1]) : 0), uncertainty:match ? Number(match[2]) : null, unit:cells[ui ?? 3] || '—', condition:cells[ci ?? 4] || '未标注', locator:'上传文件 · 整理后生成原文位置', quality:'review', quote:value, path:[['read_uploaded_file','读取上传的文件'],['await_pipeline','等待系统整理并核对']]};
     });
   }
   function parseJSON(text) {
@@ -325,7 +361,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
         const card = item.result_card || item;
         const condition = card.condition?.text || card.condition || item.condition || '未标注';
         const value = card.display || card.raw_value || item.value || '';
-        return {id:`upload-${index}`, entity:card.entity || item.entity || '未命名对象', metric:card.metric || item.metric || 'measurement', value:String(value), number:Number(card.value ?? item.value) || 0, uncertainty:card.uncertainty ?? item.uncertainty ?? null, unit:card.unit || item.unit || '—', condition:String(condition), locator:item.evidence?.[0]?.locator ? `${item.evidence[0].locator.table_id || '证据'} · row ${item.evidence[0].locator.row || '—'} · col ${item.evidence[0].locator.col || '—'}` : '上传文件 · 待生成定位', quality:item.verification?.status === 'pass' ? 'gold' : 'review', quote:item.evidence?.[0]?.span_text || String(value), path:[['parse_uploaded_json','JSON 字段已读取'],['await_pipeline','等待后端生成证据路径']]};
+        return {id:`upload-${index}`, entity:card.entity || item.entity || '未命名对象', metric:card.metric || item.metric || '测量值', value:String(value), number:Number(card.value ?? item.value) || 0, uncertainty:card.uncertainty ?? item.uncertainty ?? null, unit:card.unit || item.unit || '—', condition:String(condition), locator:item.evidence?.[0]?.locator ? `${item.evidence[0].locator.table_id || '原文'} · 行 ${item.evidence[0].locator.row || '—'} · 列 ${item.evidence[0].locator.col || '—'}` : '上传文件 · 整理后生成原文位置', quality:item.verification?.status === 'pass' ? 'gold' : 'review', quote:item.evidence?.[0]?.span_text || String(value), path:[['parse_uploaded_json','读取已有的数据字段'],['await_pipeline','等待系统整理并核对']]};
       });
     } catch (_) { return []; }
   }
@@ -337,22 +373,23 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
       return matchesText && (quality === 'all' || row.quality === quality);
     });
     $('empty-row').hidden = rows.length !== 0;
-    $('results-body').innerHTML = rows.map(row => `<tr data-id="${esc(row.id)}" class="${row.id === state.selected ? 'selected' : ''}"><td><span class="value-main">${esc(row.entity)}</span><span class="value-secondary">${esc(row.metric)}</span></td><td>${esc(row.metric)}</td><td><span class="value-main">${esc(row.value)}</span></td><td>${esc(row.unit)}</td><td>${esc(row.condition)}</td><td><span class="locator">${esc(row.locator)}</span></td><td><span class="quality ${row.quality}"><i class="quality-dot"></i>${row.quality === 'gold' ? 'Gold' : '人工复核'}</span></td></tr>`).join('');
+    $('results-body').innerHTML = rows.map(row => `<tr data-id="${esc(row.id)}" class="${row.id === state.selected ? 'selected' : ''}"><td><span class="value-main">${esc(row.entity)}</span></td><td>${esc(row.metric)}</td><td><span class="value-main">${esc(row.value)}</span></td><td>${esc(row.unit)}</td><td>${esc(row.condition)}</td><td><span class="locator">${esc(plainLocator(row.locator))}</span></td><td><span class="quality ${row.quality}"><i class="quality-dot"></i>${row.quality === 'gold' ? '可直接使用' : '建议检查'}</span></td></tr>`).join('');
     $('results-body').querySelectorAll('tr').forEach(row => row.addEventListener('click', () => { state.selected = row.dataset.id; renderRows(); renderDetail(); }));
   }
   function renderDetail() {
     const row = state.rows.find(item => item.id === state.selected) || state.rows[0];
     if (!row) return;
     $('detail-heading').textContent = `${row.entity} · ${row.metric}`;
-    $('detail-subheading').textContent = `当前选中结果 · ${row.quality === 'gold' ? 'Gold' : 'Human Review'}`;
+    $('detail-subheading').textContent = row.quality === 'gold' ? '系统已重新核对，可以直接使用' : '信息不够完整，建议人工检查';
     $('detail-value').textContent = row.value || '—';
     $('detail-unit').textContent = `${row.unit} · ${row.condition}`;
     $('field-entity').textContent = row.entity;
     $('field-metric').textContent = row.metric;
-    $('field-condition').textContent = `${row.condition} · ${row.condition === '未标注' ? 'missing' : 'explicit'}`;
-    $('detail-quote').textContent = `${row.locator}\n原文：${row.quote || row.value || '—'}`;
-    $('detail-path').innerHTML = row.path.map((step, index) => `<div class="path-item"><i class="path-num">${index + 1}</i><div><strong>${esc(step[0])}</strong><span>${esc(step[1])}</span></div></div>`).join('');
-    $('detail-verify').textContent = row.quality === 'gold' ? 'PASS · 证据一致' : '待复核 · 暂不入 Gold';
+    $('field-condition').textContent = row.condition === '未标注' ? '没有识别到' : row.condition;
+    $('detail-quote').textContent = `${plainLocator(row.locator)}\n原文：${row.quote || row.value || '—'}`;
+    const actionNames = {extract_table_cell:['读取表格单元格','从指定的表格、行和列读取原始值'], parse_measurement:['识别测量结果','拆分数值、误差和单位'], read_text_span:['读取原文片段','从论文正文中找到对应内容'], extract_relation:['识别对象关系','整理对象、指标和它们之间的关系'], extract_number_unit:['识别数值和单位','从原文中拆分数值与单位'], read_figure_alt_text:['读取图片说明','从图注和图片说明中寻找信息'], extract_figure_point:['读取图中数据点','从图中的数据系列读取数值'], read_supplement_text:['读取补充材料','从论文附件中寻找结果'], unit_convert:['统一单位','把不同写法换算成一致单位'], arith_eval:['计算结果','按照记录的步骤重新计算'], read_uploaded_file:['读取上传文件','打开并识别文件内容'], await_pipeline:['等待整理','等待系统整理并核对'], parse_uploaded_json:['读取数据字段','读取文件里已有的结构化数据'], read_uploaded_text:['读取文本内容','从文本中寻找候选数值'], pipeline_complete:['完成整理','没有找到可以整理的候选结果']};
+    $('detail-path').innerHTML = row.path.map((step, index) => { const copy = actionNames[step[0]] || ['处理这一步','系统按照记录执行了这一步']; return `<div class="path-item"><i class="path-num">${index + 1}</i><div><strong>${esc(copy[0])}</strong><span>${esc(copy[1])}</span></div></div>`; }).join('');
+    $('detail-verify').textContent = row.quality === 'gold' ? '已通过，与原文一致' : '暂不采用，等待人工确认';
     $('detail-verify').parentElement.style.color = row.quality === 'gold' ? 'var(--green)' : 'var(--amber)';
     $('detail-verify').parentElement.style.background = row.quality === 'gold' ? '#e5f4eb' : 'var(--amber-soft)';
   }
@@ -362,14 +399,17 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     $('stat-gold').textContent = gold;
     $('stat-review').textContent = state.rows.length - gold;
     $('stat-coverage').textContent = state.rows.length && gold === state.rows.length ? '100%' : `${Math.round(gold / Math.max(1, state.rows.length) * 100)}%`;
-    $('run-summary').textContent = `${state.rows.length} 条结果 · ${gold} 条通过验证`;
+    $('run-summary').textContent = `共找到 ${state.rows.length} 条数据，其中 ${gold} 条已通过核对`;
   }
   function loadDemo() {
     state.rows = DEMO_ROWS.slice(); state.selected = 'sw480-24'; state.upload = null;
     setFile({name:'PMC8415024.nxml', size:'84 KB', type:'XML'});
+    $('result-area').hidden = true;
     renderStats(); renderRows(); renderDetail();
-    $('quality-evidence').textContent = '1.0000'; $('quality-path').textContent = '1.0000'; $('quality-condition').textContent = '1.0000';
+    $('quality-evidence').textContent = '100%'; $('quality-path').textContent = '100%'; $('quality-condition').textContent = '100%';
+    $('source-license').textContent = '已确认，可以使用';
     $('source-doc').textContent = 'PMC8415024'; $('source-hash').textContent = 'sha256: 0fa00f13…e521b0';
+    window.setTimeout(runAnalysis, 120);
   }
   async function readFile(file) {
     state.upload = file;
@@ -378,33 +418,38 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     let rows = lower.endsWith('.csv') || lower.endsWith('.tsv') ? parseCSV(text) : (lower.endsWith('.json') ? parseJSON(text) : []);
     if (!rows.length && /\.txt$|\.md$|\.html?$|\.xml$|\.nxml$/.test(lower)) {
       const values = [...text.matchAll(/([-+]?\d+(?:\.\d+)?)\s*(?:±|\+\/-)\s*(\d+(?:\.\d+)?)\s*(μM|uM|mM|%|°C|C|h|hours?)/gi)];
-      rows = values.slice(0, 20).map((match, index) => ({id:`upload-${index}`, entity:'待识别对象', metric:'measurement', value:`${match[1]} ± ${match[2]}`, number:Number(match[1]), uncertainty:Number(match[2]), unit:match[3], condition:'未标注', locator:'上传文件 · 待生成定位', quality:'review', quote:match[0], path:[['read_uploaded_text','浏览器已读取文本'],['await_pipeline','等待后端生成证据路径']]}));
+      rows = values.slice(0, 20).map((match, index) => ({id:`upload-${index}`, entity:'待识别对象', metric:'测量值', value:`${match[1]} ± ${match[2]}`, number:Number(match[1]), uncertainty:Number(match[2]), unit:match[3], condition:'未标注', locator:'上传文件 · 整理后生成原文位置', quality:'review', quote:match[0], path:[['read_uploaded_text','读取文本内容'],['await_pipeline','等待系统整理并核对']]}));
     }
-    state.rows = rows.length ? rows : [{id:'upload-0', entity:'文件已接收', metric:'待分析', value:'—', number:0, uncertainty:null, unit:'—', condition:'待解析', locator:'上传文件 · 待后端处理', quality:'review', quote:'当前浏览器已接收文件；完整解析需要连接 ProvSci pipeline。', path:[['read_uploaded_file','文件已读取'],['await_pipeline','等待后端处理']]}];
+    state.rows = rows.length ? rows : [{id:'upload-0', entity:'文件已收到', metric:'等待整理', value:'—', number:0, uncertainty:null, unit:'—', condition:'等待识别', locator:'整理后生成原文位置', quality:'review', quote:'文件已经收到，点击“开始整理数据”后会进行完整处理。', path:[['read_uploaded_file','读取上传的文件'],['await_pipeline','等待系统整理并核对']]}];
     state.selected = state.rows[0].id;
     setFile({name:file.name, size:`${Math.max(1, Math.round(file.size / 1024))} KB`, type:file.name.split('.').pop().toUpperCase()});
     renderStats(); renderRows(); renderDetail();
-    $('quality-evidence').textContent = '待运行'; $('quality-path').textContent = '待运行'; $('quality-condition').textContent = '待运行';
+    $('result-area').hidden = true;
+    $('quality-evidence').textContent = '等待整理'; $('quality-path').textContent = '等待整理'; $('quality-condition').textContent = '等待整理';
+    $('source-license').textContent = '等待识别';
     $('source-doc').textContent = '本地上传文件'; $('source-hash').textContent = '运行后生成';
   }
   function applyApiResult(payload) {
     if (!payload || !Array.isArray(payload.results)) throw new Error('分析服务返回的数据格式不正确');
-    state.rows = payload.results.length ? payload.results : [{id:'upload-0', entity:'没有识别到结果', metric:'—', value:'—', number:0, uncertainty:null, unit:'—', condition:'—', locator:'没有可用证据', quality:'review', quote:'文件已处理，但没有识别到可验证的定量结果。', path:[['pipeline_complete','没有候选结果']]}];
+    state.rows = payload.results.length ? payload.results : [{id:'upload-0', entity:'没有找到数据', metric:'—', value:'—', number:0, uncertainty:null, unit:'—', condition:'—', locator:'没有找到对应原文', quality:'review', quote:'文件已经处理完成，但没有识别到可以整理的定量结果。', path:[['pipeline_complete','没有找到候选结果']]}];
     state.selected = state.rows[0].id;
     const summary = payload.summary || {};
     const verifiedCount = state.rows.filter(row => row.quality === 'gold').length;
-    $('quality-evidence').textContent = Number(summary.evidence_coverage ?? (state.rows.length && state.rows.every(row => row.locator) ? 1 : 0)).toFixed(4);
-    $('quality-path').textContent = Number(summary.path_reproducibility ?? (state.rows.length ? verifiedCount / state.rows.length : 0)).toFixed(4);
-    $('quality-condition').textContent = Number(summary.condition_match_rate ?? (state.rows.length ? state.rows.filter(row => row.condition !== '未标注').length / state.rows.length : 0)).toFixed(4);
+    const asPercent = value => `${Math.round(Number(value) * 100)}%`;
+    $('quality-evidence').textContent = asPercent(summary.evidence_coverage ?? (state.rows.length && state.rows.every(row => row.locator) ? 1 : 0));
+    $('quality-path').textContent = asPercent(summary.path_reproducibility ?? (state.rows.length ? verifiedCount / state.rows.length : 0));
+    $('quality-condition').textContent = asPercent(summary.condition_match_rate ?? (state.rows.length ? state.rows.filter(row => row.condition !== '未标注').length / state.rows.length : 0));
+    const license = summary.source?.license || payload.source?.license;
+    $('source-license').textContent = license ? `${license} · 已识别` : '没有识别到，建议确认';
     $('source-doc').textContent = summary.doc_id || '本地上传文件';
     $('source-hash').textContent = summary.source?.source_hash ? `sha256: ${summary.source.source_hash.slice(0, 8)}…${summary.source.source_hash.slice(-6)}` : '已记录';
     renderStats(); renderRows(); renderDetail();
   }
   function finishAnalysis() {
-    state.running = false; $('run-button').disabled = false; $('run-button').textContent = '重新分析'; $('task-state').textContent = '分析完成，可查看结果'; $('task-badge').innerHTML = '<i class="quality-dot"></i>已完成'; $('task-badge').className = 'quality gold'; renderStats(); renderRows(); renderDetail();
+    state.running = false; $('run-button').disabled = false; $('run-button').textContent = '重新整理'; $('task-state').textContent = '整理完成，可以查看和下载'; $('task-badge').innerHTML = '<i class="quality-dot"></i>已完成'; $('task-badge').className = 'quality gold'; $('result-area').hidden = false; renderStats(); renderRows(); renderDetail(); window.setTimeout(() => $('result-area').scrollIntoView({behavior:'smooth', block:'start'}), 120);
   }
   function runSimulation() {
-    const stages = [['读取文件', '读取原始文档'], ['结构化适配', '整理章节、表格和字段'], ['候选挖掘', '寻找数字、单位和实验条件'], ['证据与路径', '生成 locator 和 acquisition path'], ['verifier 重算', '清空答案后重新计算']];
+    const stages = [['读取文件', '正在打开示例论文'], ['识别内容', '正在识别章节和表格'], ['查找数据', '正在寻找数值、单位和实验条件'], ['对应原文', '正在记录每条数据来自哪里'], ['再次核对', '正在检查整理结果是否与原文一致']];
     let index = 0;
     const tick = () => {
       const percent = Math.round((index + 1) / stages.length * 100);
@@ -415,24 +460,28 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     tick();
   }
   async function runRemoteAnalysis() {
-    $('progress-label').textContent = '提交任务'; $('progress-detail').textContent = '文件正在发送到本地 ProvSci pipeline'; $('progress-percent').textContent = '20%'; $('progress-value').style.width = '20%';
+    $('progress-label').textContent = '读取文件'; $('progress-detail').textContent = '文件正在交给本地整理程序'; $('progress-percent').textContent = '20%'; $('progress-value').style.width = '20%';
     const form = new FormData(); form.append('file', state.upload, state.upload.name);
     const response = await fetch('/api/analyze', {method:'POST', body:form});
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || '分析服务请求失败');
-    $('progress-label').textContent = '验证完成'; $('progress-detail').textContent = '结果已由本地 pipeline 返回'; $('progress-percent').textContent = '100%'; $('progress-value').style.width = '100%';
+    $('progress-label').textContent = '整理完成'; $('progress-detail').textContent = '数据已经整理并核对完毕'; $('progress-percent').textContent = '100%'; $('progress-value').style.width = '100%';
     applyApiResult(payload); finishAnalysis();
+  }
+  function showAnalysisError(error) {
+    state.running = false; $('run-button').disabled = false; $('run-button').textContent = '重新尝试'; $('task-state').textContent = '没有完成，请检查文件后重试'; $('task-badge').innerHTML = '<i class="quality-dot"></i>遇到问题'; $('task-badge').className = 'quality review'; $('progress-label').textContent = '整理失败'; $('progress-detail').textContent = error.message || '本地服务没有返回结果';
   }
   function runAnalysis() {
     if (state.running) return;
-    state.running = true; $('run-button').disabled = true; $('run-button').textContent = '分析进行中…'; $('progress').classList.add('visible');
+    if (!state.file) { window.alert('请先选择一个文件，或者点击“使用示例体验”。'); return; }
+    state.running = true; $('run-button').disabled = true; $('run-button').textContent = '正在整理…'; $('progress').classList.add('visible');
     if (state.upload && window.location.protocol.startsWith('http')) {
-      runRemoteAnalysis().catch(error => { $('progress-detail').textContent = `服务未连接，使用浏览器预览：${error.message}`; runSimulation(); });
+      runRemoteAnalysis().catch(showAnalysisError);
     } else runSimulation();
   }
   function exportCSV() {
-    const header = ['entity','metric','value','unit','condition','quality','locator'];
-    const body = state.rows.map(row => [row.entity,row.metric,row.value,row.unit,row.condition,row.quality,row.locator].map(value => `"${String(value).replaceAll('"','""')}"`).join(','));
+    const header = ['实验对象','测量指标','结果','单位','实验条件','状态','原文位置'];
+    const body = state.rows.map(row => [row.entity,row.metric,row.value,row.unit,row.condition,row.quality === 'gold' ? '可直接使用' : '建议人工检查',plainLocator(row.locator)].map(value => `"${String(value).replaceAll('"','""')}"`).join(','));
     const blob = new Blob([[header.join(','), ...body].join('\n')], {type:'text/csv;charset=utf-8'});
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'provsci-results.csv'; link.click(); URL.revokeObjectURL(link.href);
   }
@@ -446,14 +495,11 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   $('search').addEventListener('input', renderRows);
   $('quality-filter').addEventListener('change', renderRows);
   $('export-button').addEventListener('click', exportCSV);
-  $('close-detail').addEventListener('click', () => { $('detail-panel').scrollIntoView({behavior:'smooth', block:'center'}); });
-  $('source-button').addEventListener('click', () => window.open('https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8415024/fullTextXML', '_blank', 'noopener'));
-  $('help-button').addEventListener('click', () => window.alert('当前是本地产品原型。载入演示论文可查看完整审计链；上传 CSV/JSON/TXT 可预览浏览器解析结果。'));
   ['dragenter','dragover'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.add('dragover'); }));
   ['dragleave','drop'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.remove('dragover'); }));
   $('dropzone').addEventListener('drop', event => { const file = event.dataTransfer.files[0]; if (file) readFile(file); });
   document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(item => { item.classList.toggle('active', item === tab); item.setAttribute('aria-selected', String(item === tab)); }); ['table','trace','quality'].forEach(name => { $(`${name}-view`).hidden = tab.dataset.tab !== name; }); }));
-  loadDemo();
+  if (new URLSearchParams(window.location.search).get('demo') === '1') loadDemo(); else resetFile();
 })();
 </script>
 </body>

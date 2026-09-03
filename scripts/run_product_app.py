@@ -118,7 +118,9 @@ class ProductHandler(BaseHTTPRequestHandler):
             _json_response(self, {"error": f"unsupported input format: {suffix or '<none>'}"}, 415)
             return
 
-        upload_root = self.web_root / "uploads"
+        # Runtime uploads belong in the ignored work area, not beside the
+        # versioned product page under web/.
+        upload_root = ROOT / "work" / "product-uploads"
         upload_root.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="upload-", dir=upload_root) as task_dir:
             task_path = Path(task_dir) / filename
