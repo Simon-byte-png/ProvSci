@@ -164,6 +164,8 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
 .site-actions { display: flex; align-items: center; gap: 14px; }
 .privacy-note { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
 .privacy-note i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.api-button { border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; color: var(--ink); background: var(--surface); }
+.api-button:hover { border-color: #8cbfbd; color: var(--teal); }
 .header-reset { border: 0; color: var(--teal); background: transparent; }
 .hero { max-width: 760px; margin: 0 auto 28px; text-align: center; }
 .hero-label { color: var(--teal); font-size: 12px; font-weight: 650; }
@@ -190,6 +192,28 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
 .more-content h3 { margin: 0 0 8px; font-size: 12px; }
 .primary-button:disabled { cursor: not-allowed; opacity: .55; }
 [hidden] { display: none !important; }
+.api-dialog { width: min(520px, calc(100% - 28px)); border: 1px solid var(--line); border-radius: 12px; padding: 0; color: var(--ink); background: var(--surface); box-shadow: 0 24px 80px rgba(17, 50, 65, .2); }
+.api-dialog::backdrop { background: rgba(19, 43, 58, .38); }
+.api-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 15px; border-bottom: 1px solid var(--line); }
+.api-dialog-head h2 { margin: 0; font-size: 18px; }
+.api-dialog-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.api-close { border: 0; color: var(--muted); background: transparent; font-size: 20px; }
+.api-form { display: grid; gap: 14px; padding: 19px 22px 22px; }
+.api-field { display: grid; gap: 6px; }
+.api-field label { color: var(--ink); font-size: 12px; font-weight: 550; }
+.api-field input { width: 100%; height: 37px; border: 1px solid var(--line); border-radius: 6px; padding: 0 10px; color: var(--ink); background: var(--surface); }
+.api-field input:focus { outline: 2px solid var(--teal-soft); border-color: var(--teal); }
+.api-field small { color: var(--muted); font-size: 11px; }
+.api-check { display: flex; align-items: flex-start; gap: 9px; padding: 10px 11px; border-radius: 7px; background: var(--soft); font-size: 12px; }
+.api-check input { width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--teal); }
+.api-check span { display: grid; gap: 2px; }
+.api-check small { color: var(--muted); font-size: 11px; }
+.api-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.api-status { min-height: 18px; color: var(--muted); font-size: 12px; }
+.api-status.success { color: var(--green); }
+.api-status.error { color: var(--red); }
+.ai-review { margin-top: 12px; padding: 12px 14px; border: 1px solid #bcdedb; border-radius: 8px; color: var(--ink); background: var(--teal-soft); font-size: 12px; }
+.ai-review strong { color: var(--teal); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media (max-width: 1160px) {
   .app { grid-template-columns: 200px minmax(0, 1fr); }
@@ -232,7 +256,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
 <div class="app" id="app">
   <header class="site-header">
     <div class="site-brand"><strong>ProvSci</strong><span>论文数据整理助手</span></div>
-    <div class="site-actions"><span class="privacy-note"><i></i>文件只在这台电脑上处理</span><button class="header-reset" type="button" id="new-analysis">重新开始</button></div>
+    <div class="site-actions"><span class="privacy-note"><i></i>文件只在这台电脑上处理</span><button class="api-button" type="button" id="api-settings">API 设置</button><button class="header-reset" type="button" id="new-analysis">重新开始</button></div>
   </header>
   <main class="main">
     <section class="hero">
@@ -273,6 +297,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
         <div class="stat amber"><strong id="stat-review">0</strong><span>建议人工检查</span></div>
         <div class="stat"><strong id="stat-coverage">0%</strong><span>可直接使用比例</span></div>
       </section>
+      <div class="ai-review" id="ai-review" hidden><strong>外部 API 说明</strong><span id="ai-review-text"></span></div>
 
       <div class="results-layout">
         <section class="results-panel" id="results-section">
@@ -299,6 +324,17 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     </div>
   </main>
 </div>
+<dialog class="api-dialog" id="api-dialog" aria-labelledby="api-dialog-title">
+  <div class="api-dialog-head"><div><h2 id="api-dialog-title">接入你自己的 API</h2><p>可填写任何 OpenAI 兼容接口。密钥只用于本机当前会话，不会写入项目。</p></div><button class="api-close" type="button" id="api-close" aria-label="关闭">×</button></div>
+  <form class="api-form" id="api-form" method="dialog">
+    <div class="api-field"><label for="api-base">接口地址</label><input id="api-base" type="url" placeholder="https://api.openai.com/v1"><small>例如 OpenAI、DeepSeek、通义或公司的兼容接口，通常以 /v1 结尾。</small></div>
+    <div class="api-field"><label for="api-model">模型名称</label><input id="api-model" type="text" placeholder="gpt-4o-mini" autocomplete="off"><small>填写该服务实际提供的模型名称。</small></div>
+    <div class="api-field"><label for="api-key">API 密钥</label><input id="api-key" type="password" placeholder="粘贴你的 API 密钥" autocomplete="off"><small>密钥只会发给本机服务，页面关闭后不会保存在项目文件中。</small></div>
+    <label class="api-check"><input id="api-enabled" type="checkbox"><span><b>本次整理完成后，让 API 写一段结果说明</b><small>数据提取、原文定位和结果核对仍由本地程序完成，外部 API 不会修改数据。</small></span></label>
+    <div class="api-status" id="api-status" aria-live="polite"></div>
+    <div class="api-actions"><button class="secondary-button" type="button" id="api-test">测试连接</button><button class="primary-button" type="submit" id="api-save">保存设置</button></div>
+  </form>
+</dialog>
 <script>
 (() => {
   const DEMO_ROWS = [
@@ -313,6 +349,47 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
   const plainLocator = value => String(value || '原文位置').replace(/TABLE\s*/gi, '表 ').replace(/\brow\s+/gi, '行 ').replace(/\bcol\s+/gi, '列 ');
+  const providerStorage = {base: 'provsci.api.base_url', model: 'provsci.api.model', enabled: 'provsci.api.enabled', key: 'provsci.api.key'};
+
+  function providerConfig() {
+    return {base_url: $('api-base').value.trim(), model: $('api-model').value.trim(), api_key: $('api-key').value.trim(), enabled: $('api-enabled').checked};
+  }
+  function setApiStatus(message, kind = '') {
+    $('api-status').textContent = message;
+    $('api-status').className = `api-status ${kind}`;
+  }
+  function openApiSettings() {
+    $('api-base').value = localStorage.getItem(providerStorage.base) || 'https://api.openai.com/v1';
+    $('api-model').value = localStorage.getItem(providerStorage.model) || 'gpt-4o-mini';
+    $('api-key').value = sessionStorage.getItem(providerStorage.key) || '';
+    $('api-enabled').checked = localStorage.getItem(providerStorage.enabled) === 'true';
+    setApiStatus('');
+    if ($('api-dialog').showModal) $('api-dialog').showModal(); else $('api-dialog').setAttribute('open', '');
+  }
+  function closeApiSettings() {
+    if ($('api-dialog').close) $('api-dialog').close(); else $('api-dialog').removeAttribute('open');
+  }
+  function saveApiSettings() {
+    const config = providerConfig();
+    localStorage.setItem(providerStorage.base, config.base_url || 'https://api.openai.com/v1');
+    localStorage.setItem(providerStorage.model, config.model || 'gpt-4o-mini');
+    localStorage.setItem(providerStorage.enabled, String(config.enabled));
+    if (config.api_key) sessionStorage.setItem(providerStorage.key, config.api_key); else sessionStorage.removeItem(providerStorage.key);
+    closeApiSettings();
+  }
+  async function testApiConnection() {
+    const config = providerConfig();
+    if (!config.api_key) { setApiStatus('请先填写 API 密钥。', 'error'); return; }
+    setApiStatus('正在连接，请稍候…'); $('api-test').disabled = true;
+    try {
+      const response = await fetch('/api/provider-test', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config)});
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) throw new Error(payload.error || '连接失败');
+      setApiStatus(`连接成功${payload.model_count ? `，发现 ${payload.model_count} 个可用模型` : ''}。`, 'success');
+    } catch (error) {
+      setApiStatus(error.message || '连接失败，请检查地址和密钥。', 'error');
+    } finally { $('api-test').disabled = false; }
+  }
 
   function setFile(file) {
     state.file = file;
@@ -333,7 +410,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     $('task-badge').className = 'quality review';
     $('run-button').disabled = true; $('run-button').textContent = '开始整理数据';
     $('progress').classList.remove('visible'); $('progress-percent').textContent = '0%'; $('progress-value').style.width = '0';
-    $('result-area').hidden = true;
+    $('result-area').hidden = true; $('ai-review').hidden = true;
   }
   function parseCSV(text) {
     const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -404,7 +481,7 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   function loadDemo() {
     state.rows = DEMO_ROWS.slice(); state.selected = 'sw480-24'; state.upload = null;
     setFile({name:'PMC8415024.nxml', size:'84 KB', type:'XML'});
-    $('result-area').hidden = true;
+    $('result-area').hidden = true; $('ai-review').hidden = true;
     renderStats(); renderRows(); renderDetail();
     $('quality-evidence').textContent = '100%'; $('quality-path').textContent = '100%'; $('quality-condition').textContent = '100%';
     $('source-license').textContent = '已确认，可以使用';
@@ -443,6 +520,10 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
     $('source-license').textContent = license ? `${license} · 已识别` : '没有识别到，建议确认';
     $('source-doc').textContent = summary.doc_id || '本地上传文件';
     $('source-hash').textContent = summary.source?.source_hash ? `sha256: ${summary.source.source_hash.slice(0, 8)}…${summary.source.source_hash.slice(-6)}` : '已记录';
+    const aiReview = payload.ai_review || {};
+    if (aiReview.status === 'success') { $('ai-review-text').textContent = ` ${aiReview.message}`; $('ai-review').hidden = false; }
+    else if (aiReview.status === 'error') { $('ai-review-text').textContent = ` ${aiReview.message}`; $('ai-review').hidden = false; }
+    else $('ai-review').hidden = true;
     renderStats(); renderRows(); renderDetail();
   }
   function finishAnalysis() {
@@ -462,6 +543,8 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   async function runRemoteAnalysis() {
     $('progress-label').textContent = '读取文件'; $('progress-detail').textContent = '文件正在交给本地整理程序'; $('progress-percent').textContent = '20%'; $('progress-value').style.width = '20%';
     const form = new FormData(); form.append('file', state.upload, state.upload.name);
+    const configuredProvider = providerConfig();
+    if (configuredProvider.enabled || configuredProvider.api_key) form.append('provider_config', JSON.stringify(configuredProvider));
     const response = await fetch('/api/analyze', {method:'POST', body:form});
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || '分析服务请求失败');
@@ -474,6 +557,8 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   function runAnalysis() {
     if (state.running) return;
     if (!state.file) { window.alert('请先选择一个文件，或者点击“使用示例体验”。'); return; }
+    const configuredProvider = providerConfig();
+    if (configuredProvider.enabled && !configuredProvider.api_key) { window.alert('你已开启外部 API，请先在“API 设置”中填写密钥，或关闭该选项。'); return; }
     state.running = true; $('run-button').disabled = true; $('run-button').textContent = '正在整理…'; $('progress').classList.add('visible');
     if (state.upload && window.location.protocol.startsWith('http')) {
       runRemoteAnalysis().catch(showAnalysisError);
@@ -495,6 +580,10 @@ tbody tr.selected td:first-child { box-shadow: inset 3px 0 var(--teal); }
   $('search').addEventListener('input', renderRows);
   $('quality-filter').addEventListener('change', renderRows);
   $('export-button').addEventListener('click', exportCSV);
+  $('api-settings').addEventListener('click', openApiSettings);
+  $('api-close').addEventListener('click', closeApiSettings);
+  $('api-test').addEventListener('click', testApiConnection);
+  $('api-form').addEventListener('submit', event => { event.preventDefault(); saveApiSettings(); });
   ['dragenter','dragover'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.add('dragover'); }));
   ['dragleave','drop'].forEach(type => $('dropzone').addEventListener(type, event => { event.preventDefault(); $('dropzone').classList.remove('dragover'); }));
   $('dropzone').addEventListener('drop', event => { const file = event.dataTransfer.files[0]; if (file) readFile(file); });

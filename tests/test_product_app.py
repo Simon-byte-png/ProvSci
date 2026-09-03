@@ -49,6 +49,23 @@ class ProductAppTests(unittest.TestCase):
         self.assertIn("把论文里的数据，整理成能直接使用的表格", page)
         self.assertIn("/api/analyze", page)
         self.assertIn("整理好的数据表", page)
+        self.assertIn("API 设置", page)
+        self.assertIn("/api/provider-test", page)
+
+    def test_provider_config_hides_credentials_and_empty_test_is_rejected(self) -> None:
+        with urllib.request.urlopen(f"{self.base_url}/api/provider-config", timeout=10) as response:
+            payload = json.load(response)
+        self.assertIn("provider", payload)
+        self.assertNotIn("api_key", payload["provider"])
+        request = urllib.request.Request(
+            f"{self.base_url}/api/provider-test",
+            data=json.dumps({"base_url": self.base_url, "model": "demo"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with self.assertRaises(urllib.error.HTTPError) as context:
+            urllib.request.urlopen(request, timeout=10)
+        self.assertEqual(context.exception.code, 400)
 
     def test_real_jats_upload_returns_auditable_results(self) -> None:
         content = (ROOT / "examples" / "real" / "PMC8415024.nxml").read_bytes()

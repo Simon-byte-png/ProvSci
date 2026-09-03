@@ -41,7 +41,9 @@ This folder is a self-contained local prototype of the ProvSci auditable scienti
 - `scripts/run_teacher_demo.sh`: reproduce P0 and add the SW480/IC50 query, compact preview, review queue snapshot and static review workbench for a live demonstration.
 - `scripts/build_teacher_dashboard.py`: build the self-contained interactive visual dashboard from a completed teacher-demo run.
 - `scripts/run_product_app.py`: serve the tracked product workspace and route uploaded files to the local ProvSci pipeline through `POST /api/analyze`.
+- `scripts/start_product_app.sh` / `scripts/start_product_app.bat`: one-command launchers for downloaded macOS/Linux and Windows copies.
 - `web/product_workspace.html`: tracked product workspace with file drop, run progress, structured result table, evidence panel and CSV export.
+- `src/provsci/provider.py`: optional OpenAI-compatible API connection test and plain-language overview; it never replaces deterministic verification.
 - `scripts/run_p2.sh`: reproduce the fixed-manifest benchmark and diagnostic module ablation.
 - `scripts/run_adversarial.sh`: derive controlled contamination cases and audit verifier rejection.
 - `scripts/build_review_figures.py`: rebuild matrix CSV/summary and four source-linked SVG review figures.
@@ -58,6 +60,7 @@ This folder is a self-contained local prototype of the ProvSci auditable scienti
 - `work/*/adversarial_summary.json`: controlled contamination coverage and verifier rejection summary.
 - `work/*/adversarial.jsonl`: controlled contaminated candidates with full verification/provenance traces.
 - `pyproject.toml`: package metadata and console-script configuration.
+- `.env.example`: optional local API settings template; real keys are never committed.
 
 ## Excluded from the package
 

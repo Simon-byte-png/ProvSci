@@ -75,6 +75,11 @@ class ProductHandler(BaseHTTPRequestHandler):
         if path == "/api/health":
             _json_response(self, {"ok": True, "service": "provsci-product-app"})
             return
+        if path == "/api/provider-config":
+            from provsci.provider import normalize_provider_config
+
+            _json_response(self, {"provider": normalize_provider_config().public_dict()})
+            return
         relative = "teacher_dashboard.html" if path in {"", "/"} else path.lstrip("/")
         target = (self.web_root / relative).resolve()
         if self.web_root.resolve() not in target.parents and target != self.web_root.resolve():
@@ -92,7 +97,11 @@ class ProductHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self) -> None:  # noqa: N802
-        if self.path.split("?", 1)[0] != "/api/analyze":
+        path = self.path.split("?", 1)[0]
+        if path == "/api/provider-test":
+            self._test_provider()
+            return
+        if path != "/api/analyze":
             _json_response(self, {"error": "not found"}, 404)
             return
         content_length = int(self.headers.get("Content-Length", "0"))
@@ -132,15 +141,53 @@ class ProductHandler(BaseHTTPRequestHandler):
 
                 summary = ScientificDataAgent().run(task_path, output_dir)
                 samples = [json.loads(line) for line in (output_dir / "all.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+                ui_results = [_sample_for_ui(sample) for sample in samples]
                 payload = {
                     "summary": summary,
                     "source": summary.get("source", {}),
-                    "results": [_sample_for_ui(sample) for sample in samples],
+                    "results": ui_results,
                 }
+                provider_field = form["provider_config"] if "provider_config" in form else None
+                provider_settings = None
+                if provider_field is not None and getattr(provider_field, "value", ""):
+                    try:
+                        provider_settings = json.loads(provider_field.value)
+                    except json.JSONDecodeError:
+                        _json_response(self, {"error": "provider_config must be valid JSON"}, 400)
+                        return
+                from provsci.provider import generate_overview, normalize_provider_config
+
+                provider = normalize_provider_config(provider_settings)
+                if provider.enabled:
+                    payload["provider"] = provider.public_dict()
+                    payload["ai_review"] = generate_overview(provider, summary, ui_results)
             except Exception as exc:  # pragma: no cover - HTTP boundary
                 _json_response(self, {"error": str(exc)}, 422)
                 return
         _json_response(self, payload)
+
+    def _test_provider(self) -> None:
+        content_length = int(self.headers.get("Content-Length", "0"))
+        if content_length <= 0 or content_length > 64 * 1024:
+            _json_response(self, {"error": "配置内容为空或过大"}, 400)
+            return
+        content_type = self.headers.get("Content-Type", "")
+        if not content_type.startswith("application/json"):
+            _json_response(self, {"error": "需要 application/json 配置"}, 415)
+            return
+        try:
+            raw = json.loads(self.rfile.read(content_length).decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            _json_response(self, {"error": "配置不是有效 JSON"}, 400)
+            return
+        if not isinstance(raw, dict):
+            _json_response(self, {"error": "配置必须是 JSON 对象"}, 400)
+            return
+        from provsci.provider import normalize_provider_config, test_provider
+
+        config = normalize_provider_config(raw)
+        result = test_provider(config)
+        _json_response(self, result, 200 if result.get("ok") else 400)
 
 
 def main(argv: list[str] | None = None) -> int:

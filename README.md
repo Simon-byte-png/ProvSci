@@ -622,6 +622,28 @@ PYTHONPATH=src python3 scripts/run_product_app.py 127.0.0.1 4173
 
 浏览器打开 `http://127.0.0.1:4173/product_workspace.html`。产品前端位于 `web/product_workspace.html`，上传接口为 `POST /api/analyze`；`work/` 仅保存本地产物，不纳入版本库。
 
+### 下载后在自己的电脑运行
+
+仓库是一个不依赖第三方 Python 包的本地产品。用户可以在 GitHub 点击 **Code → Download ZIP**，解压后运行：
+
+```bash
+./scripts/start_product_app.sh        # macOS / Linux
+```
+
+Windows 命令提示符运行：
+
+```bat
+scripts\start_product_app.bat
+```
+
+然后打开 `http://127.0.0.1:4173/product_workspace.html`。更完整的下载、隐私和 API 配置说明见 [Download and Use ProvSci Locally](docs/local-download-and-api.md)。
+
+### 接入自己的模型 API（可选）
+
+产品页面右上角的 **API 设置** 支持任何 OpenAI 兼容接口。填入自己的接口地址、模型名和 API 密钥后，可以先点击 **测试连接**，再勾选让该 API 为本次整理生成一段中文结果说明。OpenAI、DeepSeek、通义或公司内部兼容网关都可以使用对应的 `/v1` 地址。
+
+API 密钥只会从浏览器发送到本机的 ProvSci 服务，不会写入仓库，也不会写进结果文件。结构化数值、原文定位、质量分流和 verifier 仍由本地确定性 pipeline 完成；外部模型不能修改这些结果。无人值守运行时，可以复制 `.env.example` 为 `.env`，执行 `set -a; . ./.env; set +a` 后再启动服务，通过 `PROVSCI_API_ENABLED`、`PROVSCI_API_KEY`、`PROVSCI_API_BASE_URL` 和 `PROVSCI_API_MODEL` 配置。`.env` 已被 Git 忽略，绝不要提交真实密钥。
+
 运行 P2 固定集和模块消融（`without_*` 变体只用于诊断，不能生成生产 Gold）：
 
 ```bash
